@@ -6,4 +6,5 @@
     <color name = "colorSkyBlue">#87ceeb</color>
     <color name="colorGoldenRod">#eedd82</color>
     <color name="colorSeaGreen">#20b2aa</color>
+    <color name="colorGrey">#A9A9A9</color>
 </resources>
