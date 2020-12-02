@@ -6,10 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
+
 import kotlinx.android.synthetic.main.mapslayout.*
 
 class Tab1Fragment : Fragment(), OnMapReadyCallback {
@@ -34,9 +37,7 @@ class Tab1Fragment : Fragment(), OnMapReadyCallback {
         savedInstanceState: Bundle?
     ): View? {
         var rootView =  inflater.inflate(R.layout.mapslayout, container, false)
-        val mapFrag = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFrag.onResume()
-        mapFrag.getMapAsync(this)
+
 
         return rootView
     }
@@ -45,31 +46,51 @@ class Tab1Fragment : Fragment(), OnMapReadyCallback {
 
 
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(Tab1ViewModel::class.java)
-        activity.let {
-            viewModel = ViewModelProviders.of(it!!).get(Tab1ViewModel::class.java)
-        }
-
+        val mapFrag = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFrag.getMapAsync(this)
 
 
 
         // TODO: Use the ViewModel
     }
 
-    override fun onMapReady(p0: GoogleMap?) {
+    override fun onMapReady(map: GoogleMap?) {
 
 
+        if (map != null) {
 
-        if (p0 != null) {
-            mMap = p0
+            // Set the map position
+            map.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        29.0,
+                        -88.0
+                    ), 3.0f
+                )
+            )
+
+            // Add a marker on Washington, DC, USA
+            map.addMarker(
+                MarkerOptions().position(
+                    LatLng(38.8895, -77.0352)
+                ).title(
+                    "Hi There"
+                )
+            )
+
+            // Add a marker on Mexico City, Mexico
+            map.addMarker(
+                MarkerOptions().position(
+                    LatLng(19.13, -99.4)
+                ).title(
+                    "In Mexico"
+                )
+            )
         }
 
-        // Add a marker in Sydney and move the camera
+    }
 
-        // Add a marker in Sydney and move the camera
-        val sydney = LatLng((-34).toDouble(), 151.0)
 
 
     }
 
-}
