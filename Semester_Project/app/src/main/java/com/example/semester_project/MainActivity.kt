@@ -1,47 +1,69 @@
 package com.example.semester_project
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.tabs.TabLayout
-import androidx.viewpager.widget.ViewPager
-import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Button
-import androidx.core.view.get
-import com.example.semester_project.ui.main.SectionsPagerAdapter
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import android.view.MotionEvent
+import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener as OnItemTouchListener
 
-class MainActivity : AppCompatActivity() {
+
+class MainActivity : Activity() {
+    lateinit var toolBar: Toolbar
+    lateinit var recycleView: RecyclerView
+    lateinit var myTours: List<Tour>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
-        val viewPager: ViewPager = findViewById(R.id.view_pager)
-        viewPager.adapter = sectionsPagerAdapter
-        val tabs: TabLayout = findViewById(R.id.tabs)
-        tabs.setupWithViewPager(viewPager)
-        tabs.getTabAt(0)!!.setIcon(R.drawable.ic_baseline_home_24)
-        tabs.getTabAt(1)!!.setIcon(R.drawable.ic_baseline_map_24)
-        tabs.getTabAt(2)!!.setIcon(R.drawable.ic_baseline_account_circle_24)
+
+        // ToolBar and Menu
+        toolBar = findViewById(R.id.toolbar) as Toolbar
+        toolBar.setTitle(R.string.app_name)
+        toolBar.setSubtitle("Discovery")
+        toolBar.inflateMenu(R.menu.switch_activities)
+        toolBar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.map -> {
+                    val intent = Intent(this, MapActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.user -> {
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+        }
+
+        // CardView & RecycleView
+        recycleView = findViewById(R.id.recyclerView) as RecyclerView
+        recycleView.layoutManager = LinearLayoutManager(this)
+        myTours = initToursList()
+        recycleView.adapter = CardAdapter(myTours, this)
+    }
 
 
-
-
-
-
-
+    // TODO: Database part
+    //  Put tour information (img, name, description) into Tour object. Then add Tour objects to an Arraylist and return
+    fun initToursList():List<Tour> {
+        var t = ArrayList<Tour>()
+        for(i in 1..5){
+            t.add(Tour(R.drawable.default_tour_image, "Default", "I Love this Default image because it fits into my theme!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"))
+        }
+        return t
     }
 
 
 
 
 
+
 }
+
+
