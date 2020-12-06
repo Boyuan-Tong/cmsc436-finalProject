@@ -11,7 +11,8 @@ import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.places.ui.PlaceAutocomplete
+
+
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -25,7 +26,7 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListener {
 
     private lateinit var mMap: GoogleMap
-    private lateinit var mBar: PlaceAutocomplete
+    //private lateinit var mBar: PlaceAutocomplete
     private lateinit var mPlace: PlacesClient
     private lateinit var mComplete :AutocompleteSupportFragment
     private lateinit var mLocation: Location

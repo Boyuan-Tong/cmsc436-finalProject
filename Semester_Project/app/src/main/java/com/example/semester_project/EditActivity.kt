@@ -163,7 +163,7 @@ class EditActivity: Activity() {
                     images.add(reader.readLine())
                 }
                 description = reader.readLine()
-                mAdapter.add(Location(address, images, description))
+                //mAdapter.add(Location(address, images, description))
 
             }
             while (true)

@@ -56,7 +56,7 @@ class MainActivity : Activity() {
         val imagePath = R.drawable.default_tour_image
         val imageList = ArrayList<String>()
         for(i in 1..3){
-            imageList.add(imagePath)
+          //  imageList.add(imagePath)
         }
         val locationList = ArrayList<Bundle>()
         for(i in 1..5){

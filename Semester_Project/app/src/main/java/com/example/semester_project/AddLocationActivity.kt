@@ -94,7 +94,7 @@ class AddLocationActivity: Activity() {
             if (selectedImage != null) {
                 try {
                     images.add(selectedImage.path!!)
-                    mImage1.text = selectedImage.lastPathSegment
+                    //mImage1.text = selectedImage.lastPathSegment
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
                 } catch (e: IOException) {

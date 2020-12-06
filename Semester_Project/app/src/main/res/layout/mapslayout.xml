@@ -12,13 +12,13 @@
         android:id="@+id/autocomplete_fragment"
         android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/place_autocomplete_powered_by_google_height"
+        android:layout_height="wrap_content"
 
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:apiKey = ""
+        android:apiKey = "AIzaSyAWzjlC_CvMvp-IN1r14WJTgVZQ_G6ojRw"
 
         app:layout_constraintVertical_bias="0.0" />
 
