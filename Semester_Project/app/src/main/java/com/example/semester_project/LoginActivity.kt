@@ -3,11 +3,10 @@ package com.example.semester_project
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.widget.Toolbar
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 
 class LoginActivity: Activity() {
     lateinit var toolBar:Toolbar
@@ -16,10 +15,66 @@ class LoginActivity: Activity() {
     lateinit var clearBut:Button
     lateinit var userNameView: EditText
     lateinit var passwordView: EditText
+
+    private lateinit var mAuth: FirebaseAuth
+
+    private lateinit var mAdapter: FavorateListAdapter
+    private lateinit var mName: TextView
+    private lateinit var mFavorateList: ListView
+    private lateinit var user: DatabaseReference
+    private lateinit var addTour: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.addauthor)
 
+        mAuth = FirebaseAuth.getInstance()
+        if (mAuth.currentUser == null) {
+            setContentView(R.layout.login_page)
+
+            setToolbar()
+
+            loginBut = findViewById(R.id.loginBtn)
+            clearBut = findViewById(R.id.clearBtn)
+            registerBut = findViewById(R.id.registerBtn)
+            userNameView = findViewById(R.id.userName)
+            passwordView = findViewById(R.id.password)
+
+            loginBut.setOnClickListener{ loginUserAccount() }
+
+            clearBut.setOnClickListener{v ->
+                userNameView.setText("")
+                passwordView.setText("")
+            }
+
+            registerBut.setOnClickListener{
+                val intent = Intent(this, RegisterActivity::class.java)
+                startActivityForResult(intent, REGISTER_REQUEST)
+            }
+        } else {
+            setContentView(R.layout.user_page)
+            addTour = findViewById(R.id.editBut)
+            addTour.setOnClickListener {
+                val tmpIntent = Intent(this, EditActivity::class.java)
+                startActivity(tmpIntent)
+            }
+
+            mAdapter = FavorateListAdapter(applicationContext)
+            mName = findViewById(R.id.userName)
+            mFavorateList = findViewById(R.id.listview)
+            mFavorateList.adapter = mAdapter
+
+            mFavorateList.onItemClickListener = AdapterView.OnItemClickListener{ adapterView, view, i, l ->
+                val tour = mAdapter.getItem(i)
+                val tmpIntent = Intent(this, TourActivity::class.java)
+                tmpIntent.putExtra(TOUR_ID, tour)
+                startActivity(tmpIntent)
+            }
+        }
+
+
+    }
+
+    private fun setToolbar() {
         // ToolBar and Menu
         toolBar = findViewById(R.id.toolbar) as Toolbar
         toolBar.setTitle(R.string.app_name)
@@ -40,42 +95,51 @@ class LoginActivity: Activity() {
                 else -> super.onOptionsItemSelected(item)
             }
         }
+    }
 
-        loginBut = findViewById(R.id.loginBtn)
-        clearBut = findViewById(R.id.clearBtn)
-        registerBut = findViewById(R.id.registerBtn)
-        userNameView = findViewById(R.id.userName)
-        passwordView = findViewById(R.id.password)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
 
-        loginBut.setOnClickListener{v ->
-            val password = passwordView.text as String?
-            val userName = userNameView.text as String?
-            val valid = true
+        if (requestCode == REGISTER_REQUEST && resultCode == RESULT_OK) {
+            recreate()
+        }
+    }
 
-            //TODO: Database
-            // Check username and password
+    private fun loginUserAccount() {
 
-            if(!valid){
-                Toast.makeText(this, "Invalid username or password!", Toast.LENGTH_LONG).show()
-            }else{
-                val intent = Intent(this, UserPageActivity::class.java)
+        val email: String = userNameView.text.toString()
+        val password: String = passwordView.text.toString()
+        var validator = Validators()
 
-                //TODO: (Database) put necessary data into intent with putExtra()
+        if (!validator.validEmail(email)) {
+            Toast.makeText(applicationContext, "Please enter a valid email...",
+                Toast.LENGTH_SHORT).show()
+            return
+        }
 
-                startActivity(intent)
+        mAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(applicationContext, "Login successful!", Toast.LENGTH_LONG)
+                        .show()
+                    recreate()
+                } else {
+                    Toast.makeText(
+                        applicationContext,
+                        "Login failed! Please try again later",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
             }
-        }
+    }
 
-        clearBut.setOnClickListener{v ->
-            userNameView.setText("")
-            passwordView.setText("")
-        }
+    companion object {
 
-        registerBut.setOnClickListener{v ->
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
-        }
-
+        private val REGISTER_REQUEST = 0
+        private val TOUR_ID = "TOUR_ID"
 
     }
+
+
+
 }
