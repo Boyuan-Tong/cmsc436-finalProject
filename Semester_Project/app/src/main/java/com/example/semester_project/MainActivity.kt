@@ -53,8 +53,15 @@ class MainActivity : Activity() {
     //  Put tour information (img, name, description) into Tour object. Then add Tour objects to an Arraylist and return
     fun initToursList():List<Tour> {
         var t = ArrayList<Tour>()
+        val imagePath = R.drawable.default_tour_image
+        val imageList = ArrayList<String>()
+        for(i in 1..3){
+            imageList.add(imagePath)
+        }
+        val locationList = ArrayList<Bundle>()
         for(i in 1..5){
-            t.add(Tour(R.drawable.default_tour_image, "Default", "I Love this Default image because it fits into my theme!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"))
+            val location = Location("Cool Place","Some where on the moon",imageList, "Cool place where you can find 1 ton of gold")
+            locationList.add(location.packageBundle())
         }
         return t
     }

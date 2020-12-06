@@ -1,6 +1,7 @@
 package com.example.semester_project
 
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,106 +14,81 @@ import java.util.ArrayList
 
 class LocationListAdapter(private val mContext: Context) : BaseAdapter() {
 
-    private val mTour = ArrayList<Location>()
+    private val mTour = ArrayList<Bundle>()
 
-    fun add(location: Location) {
+    fun addBundle(bundle:Bundle){
+        mTour.add(bundle)
+    }
 
-        mTour.add(location)
+    fun addLocation(location: Location) {
+        mTour.add(location.packageBundle())
         notifyDataSetChanged()
-
     }
 
     fun clear() {
-
         mTour.clear()
         notifyDataSetChanged()
-
     }
 
     override fun getCount(): Int {
-
         return mTour.size
-
     }
 
     override fun getItem(pos: Int): Location {
-
-        return mTour[pos]
-
+        val bundle = mTour[pos]
+        val location = Location(bundle.getString(Location.NAME)!!, bundle.getString(Location.LOCATION_ADDRESS)!!,
+        bundle.getStringArrayList(Location.IMAGES)!!, bundle.getString(Location.DESCRIPTION)!!)
+        return location
     }
 
     override fun getItemId(pos: Int): Long {
-
         return pos.toLong()
-
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
-        val tourId = getItem(position)
-
+        val location = getItem(position)
         val viewHolder: ViewHolder
 
         if (null == convertView) {
-
             viewHolder = ViewHolder()
 
             // TODO: layout and area
             val newView = LayoutInflater.from(mContext).inflate(R.layout.location_card, parent, false)
-            viewHolder.mItemLayout = newView.findViewById(R.id.RelativeLayout1)
-            viewHolder.mTitleView = newView.findViewById(R.id.titleView)
-            viewHolder.mPriorityView = newView.findViewById(R.id.priorityView)
-            viewHolder.mStatusView = newView.findViewById(R.id.statusCheckBox)
-            viewHolder.mDateView = newView.findViewById(R.id.dateView)
+            viewHolder.name = newView.findViewById(R.id.locationName)
+            viewHolder.address = newView.findViewById(R.id.locationAddress)
+            viewHolder.description = newView.findViewById(R.id.locationDesc)
+            viewHolder.mItemLayout = newView.findViewById(R.id.locationRelativeLayout)
             newView.setTag(viewHolder)
 
         } else {
-
             viewHolder = convertView.tag as ViewHolder
-            viewHolder.mStatusView!!.setOnCheckedChangeListener(null)
-
         }
 
-
-
         viewHolder.position = position
-        var tour = FirebaseDatabase.getInstance().getReference("tours")
-            .child(tourId)
+        //var tour = FirebaseDatabase.getInstance().getReference("tours")
+        //    .child(tourId)
         // TODO - Fill the areas
-        viewHolder.mTitleView!!.text = toDoItem.title
-
-        // TODO
-        viewHolder.mStatusView!!.isChecked = toDoItem.status == Status.DONE
-
-        // TODO
-        viewHolder.mPriorityView!!.text = toDoItem.priority.toString()
-
-        // TODO
-        viewHolder.mDateView!!.text =  ToDoItem.FORMAT.format(toDoItem.date)
+        viewHolder.name!!.text = location.name
+        viewHolder.address!!.text = location.locationAddress
+        viewHolder.description!!.text = location.description
 
         return viewHolder.mItemLayout
-
     }
 
     fun adjust(location: Location, pos: Int) {
         if (pos == -1)
             return
         mTour.removeAt(pos)
-        mTour.add(pos, location)
+        mTour.add(pos, location.packageBundle())
         notifyDataSetChanged()
     }
 
     internal class ViewHolder {
         var position: Int = 0
-        // TODO - NEED CHANGE
+        var name: TextView? = null
+        var address: TextView? = null
+        var description: TextView? = null
         var mItemLayout: RelativeLayout? = null
-        var mTitleView: TextView? = null
-        var mStatusView: CheckBox? = null
-        var mPriorityView: TextView? = null
-        var mDateView: TextView? = null
     }
 
-    companion object {
-
-        private val TAG = "Lab-UserInterface"
-    }
 }

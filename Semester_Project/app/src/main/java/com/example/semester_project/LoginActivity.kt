@@ -3,10 +3,12 @@ package com.example.semester_project
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
+import kotlinx.android.synthetic.main.footer_view.view.*
 
 class LoginActivity: Activity() {
     lateinit var toolBar:Toolbar
@@ -60,12 +62,13 @@ class LoginActivity: Activity() {
 
             mAdapter = FavorateListAdapter(applicationContext)
             mName = findViewById(R.id.userName)
-            mFavorateList = findViewById(R.id.listview)
+            mFavorateList = findViewById(R.id.favorateListView)
             mFavorateList.adapter = mAdapter
+
 
             mFavorateList.onItemClickListener = AdapterView.OnItemClickListener{ adapterView, view, i, l ->
                 val tour = mAdapter.getItem(i)
-                val tmpIntent = Intent(this, TourActivity::class.java)
+                val tmpIntent = Intent(this, TourDetailActivity::class.java)
                 tmpIntent.putExtra(TOUR_ID, tour)
                 startActivity(tmpIntent)
             }
@@ -139,7 +142,4 @@ class LoginActivity: Activity() {
         private val TOUR_ID = "TOUR_ID"
 
     }
-
-
-
 }

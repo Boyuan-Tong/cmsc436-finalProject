@@ -2,6 +2,8 @@ package com.example.semester_project
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.os.Parcelable
 import android.view.LayoutInflater
@@ -11,7 +13,8 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-
+import com.example.semester_project.Location
+import java.io.File
 
 class CardAdapter(tours: List<Tour>, val context: Context) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
     private val myTours = tours
@@ -21,6 +24,7 @@ class CardAdapter(tours: List<Tour>, val context: Context) : RecyclerView.Adapte
         val titleView = itemView.findViewById<TextView>(R.id.tour_title)
         val descriptionView = itemView.findViewById<TextView>(R.id.tour_description)
         val cardView = itemView.findViewById<CardView>(R.id.card_view)
+        val authorView = itemView.findViewById<TextView>(R.id.tour_author)
 
     }
 
@@ -36,13 +40,18 @@ class CardAdapter(tours: List<Tour>, val context: Context) : RecyclerView.Adapte
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.imgView.setImageResource(myTours[position].img)
+        val location = myTours[position].locations
+
+        //Use the first Image from frist location as Title Image
+        val images = location[0].getStringArrayList(Location.IMAGES)
+        holder.imgView.setImageBitmap(BitmapFactory.decodeFile(images?.get(0)))
+
         holder.titleView.text = myTours[position].name
         holder.descriptionView.text = myTours[position].description
+        holder.authorView.text = myTours[position].author
 
         holder.cardView.setOnClickListener { v ->
             val intent = Intent(context, TourDetailActivity::class.java)
-
             intent.putExtra("tour", myTours[position] as Parcelable)
             context.startActivity(intent)
         }

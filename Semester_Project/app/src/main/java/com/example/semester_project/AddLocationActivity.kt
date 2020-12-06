@@ -16,15 +16,26 @@ import kotlin.collections.ArrayList
 class AddLocationActivity: Activity() {
 
     private lateinit var mAddImage1: Button
-    private lateinit var mImage1: TextView
+    private lateinit var mAddImage2: Button
+    private lateinit var mAddImage3: Button
+    private lateinit var mImage1: ImageView
+    private lateinit var mImage2: ImageView
+    private lateinit var mImage3: ImageView
+    lateinit var nameView: EditText
+    lateinit var addressView: EditText
+    lateinit var descView: EditText
     private val images = ArrayList<String>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.add_todo)
+        setContentView(R.layout.add_location)
 
-        val cancelButton = findViewById<View>(R.id.cancelButton) as Button
+        nameView = findViewById(R.id.editName)
+        addressView = findViewById(R.id.editAddress)
+        descView = findViewById(R.id.editDesc)
+
+        val cancelButton = findViewById<View>(R.id.cancelLoactionBut) as Button
         cancelButton.setOnClickListener {
             Log.i(TAG, "Entered cancelButton.OnClickListener.onClick()")
 
@@ -33,8 +44,25 @@ class AddLocationActivity: Activity() {
             finish()
         }
 
-        mAddImage1 = findViewById(R.id.addImage1)
+        mAddImage1 = findViewById(R.id.addImageBut1)
+        mAddImage2 = findViewById(R.id.addImageBut2)
+        mAddImage3 = findViewById(R.id.addImageBut3)
+
         mAddImage1.setOnClickListener {
+            val tmpIntent = Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            )
+            startActivityForResult(tmpIntent, IMAGE_REQUEST)
+        }
+        mAddImage2.setOnClickListener {
+            val tmpIntent = Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            )
+            startActivityForResult(tmpIntent, IMAGE_REQUEST)
+        }
+        mAddImage3.setOnClickListener {
             val tmpIntent = Intent(
                 Intent.ACTION_PICK,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI
@@ -43,24 +71,15 @@ class AddLocationActivity: Activity() {
         }
 
 
-        val resetButton = findViewById<View>(R.id.resetButton) as Button
-        resetButton.setOnClickListener { Log.i(TAG, "Entered resetButton.OnClickListener.onClick()")
-            mTitleText!!.text.clear()
-            mDefaultStatusButton!!.isChecked = true
-            mDefaultPriorityButton!!.isChecked = true
 
-        }
-
-
-        val submitButton = findViewById<View>(R.id.submitButton) as Button
+        // TODO: (DATABASE) implement submitButton logic
+        val submitButton = findViewById<View>(R.id.submitLoactionBut) as Button
         submitButton.setOnClickListener {
-            Log.i(TAG, "Entered submitButton.OnClickListener.onClick()")
-
-            val title = mTitleText!!.text.toString()
-            val date = dateView!!.text.toString() + " " + timeView!!.text.toString()
+            val name = nameView.text as String
+            val address = addressView.text as String
+            val description = descView.text as String
             val tmpIntent = Intent()
-            tmpIntent.putExtra(NUMBER, intent.getIntExtra(NUMBER, -1))
-            ToDoItem.packageIntent(tmpIntent, title, priority, status, date)
+
             setResult(RESULT_OK, tmpIntent)
             finish()
         }

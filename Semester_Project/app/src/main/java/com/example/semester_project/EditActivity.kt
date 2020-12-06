@@ -1,12 +1,9 @@
 package com.example.semester_project
 
-import android.R.attr
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -55,7 +52,7 @@ class EditActivity: Activity() {
             startActivityForResult(tmpIntent, ADJUST_LOCATION_REQUEST)
         }
 
-        val submitButton = findViewById<View>(R.id.submitButton) as Button
+        val submitButton = findViewById<View>(R.id.submitBut) as Button
         submitButton.setOnClickListener { submitNewTour() }
 
     }
@@ -88,7 +85,7 @@ class EditActivity: Activity() {
         if (requestCode == ADD_LOCATION_REQUEST && resultCode == RESULT_OK) {
             var location = data?.let { Location(it) }
             if (location != null) {
-                mAdapter.add(location)
+                mAdapter.addLocation(location)
             }
         }
 
