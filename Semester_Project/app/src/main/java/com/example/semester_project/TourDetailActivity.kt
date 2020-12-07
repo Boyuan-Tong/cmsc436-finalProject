@@ -42,6 +42,8 @@ class TourDetailActivity : Activity() {
         adapter = LocationListAdapter(applicationContext, intent.getStringExtra(TOUR_ID)!!)
         listView.adapter = adapter
 
+
+
         listView.setOnItemClickListener { parent, view, position, id ->
             val location = adapter.getItem(position)
             val tmpIntent = Intent(this, LocationDetailActivity::class.java)

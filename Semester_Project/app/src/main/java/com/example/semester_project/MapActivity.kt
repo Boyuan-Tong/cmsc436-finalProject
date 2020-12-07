@@ -6,37 +6,34 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.net.PlacesClient
-import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+
 
 class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListener {
 
     private lateinit var mMap: GoogleMap
-    //private lateinit var mBar: PlaceAutocomplete
-    private lateinit var mPlace: PlacesClient
-    private lateinit var mComplete :AutocompleteSupportFragment
-    private lateinit var mLocation: Location
     private lateinit var mFused: FusedLocationProviderClient
     private lateinit var lastLocation: Location
     private lateinit var toolBar: Toolbar
-
+    private lateinit var locationArray: ArrayList<String>
+    private lateinit var namesArray: ArrayList<String>
+    private lateinit var descriptionArray: ArrayList<String>
 
 
     //TODO: implement Map logic
@@ -47,6 +44,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         toolBar = findViewById(R.id.toolbar)
         toolBar.inflateMenu(R.menu.switch_activities)
         toolBar.setOnMenuItemClickListener { item ->
+
             when (item.itemId) {
                 R.id.discovery -> {
                     val intent = Intent(this, MainActivity::class.java)
@@ -60,6 +58,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
                 }
                 else -> super.onOptionsItemSelected(item)
             }
+
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -67,42 +66,37 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-
-        mFused = LocationServices.getFusedLocationProviderClient(this)
-
-
-        Places.initialize(applicationContext, "AIzaSyAWzjlC_CvMvp-IN1r14WJTgVZQ_G6ojRw")
-
-
-      /* mPlace = Places.createClient(this)
-
-        mComplete = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
-
-        mComplete.setTypeFilter(TypeFilter.ADDRESS)
-
-        mComplete.setPlaceFields(listOf(com.google.android.libraries.places.api.model.Place.Field.ID, com.google.android.libraries.places.api.model.Place.Field.NAME))
+        // Get the string array list intents from Tour detail activity
+        locationArray = intent.getStringArrayExtra(LOCATIONS) as ArrayList<String>
+        namesArray = intent.getStringArrayListExtra(NAMES) as ArrayList<String>
+        descriptionArray = intent.getStringArrayListExtra(DESCRIPTIONS) as ArrayList<String>
 
 
-        mComplete.setOnPlaceSelectedListener(object : PlaceSelectionListener {
+        var position = 0
 
-            override fun onPlaceSelected(p0: com.google.android.libraries.places.api.model.Place) {
-                // TODO: Get info about the selected place.
-                Log.i("MAP", "Place: ${p0.name}, ${p0.id}")
+        for (element in locationArray) {
+
+            if(goToLocationFromAddress(element).longitude == 0.0 && goToLocationFromAddress(element).longitude == 0.0){
+
+                Toast.makeText(this, "Not A Valid Address", Toast.LENGTH_SHORT).show()
+
+            } else {
+
+                addMarker(
+                    mMap,
+                    goToLocationFromAddress(element),
+                    namesArray[position],
+                    descriptionArray[position]
+                )
+
             }
 
-            override fun onError(status: Status) {
-                // TODO: Handle the error.
-                Log.i("MAP","An error occurred: $status")
-            }
+            position += 1
 
-
-        }) */
+        }
 
 
     }
-
-
-
 
 
     /**
@@ -120,21 +114,15 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         val options = GoogleMapOptions()
 
         mMap.uiSettings.isZoomControlsEnabled = true
-        if (ActivityCompat.checkSelfPermission(applicationContext!!,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                applicationContext!!,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             mMap.uiSettings.isMyLocationButtonEnabled = true
         }
         mMap.uiSettings.isMapToolbarEnabled = true
         mMap.uiSettings.isCompassEnabled = true
-
-        // Add a marker in Sydney and move the camera
-        /*
-          mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-          mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney)) */
-        /* val latLng = LatLng(38.9860, -76.9424)
-        // mMap.addMarker(MarkerOptions().position(latLng).title("Marker in Sydney"))
-         mMap.addMarker(MarkerOptions().position(latLng).title("Marker in CP").flat(true))
-         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16.0f)) */
 
 
         setUpMap()
@@ -142,23 +130,28 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         addMarker(googleMap, pos, "Hornbake Plaza", "This is a library")
 
 
-
     }
 
     override fun onPlaceSelected(p0: com.google.android.libraries.places.api.model.Place) {
-        Toast.makeText(applicationContext,""+p0!!.name+p0!!.latLng, Toast.LENGTH_LONG).show();
+        Toast.makeText(applicationContext, "" + p0!!.name + p0!!.latLng, Toast.LENGTH_LONG).show();
     }
 
     override fun onError(p0: Status) {
-        Toast.makeText(applicationContext,"", Toast.LENGTH_LONG).show();
+        Toast.makeText(applicationContext, "", Toast.LENGTH_LONG).show();
     }
 
     private fun setUpMap() {
 
-        if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
             return
         }
 
@@ -176,39 +169,83 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
     }
 
 
-    private fun placeMarkerOnMap(location: LatLng) {
-        // 1
-        val markerOptions = MarkerOptions().position(location)
-        // 2
-        mMap.addMarker(markerOptions)
-    }
-
-
-    fun addMarker(googleMap: GoogleMap, position: LatLng, title: String, data: String){
+    fun addMarker(googleMap: GoogleMap, position: LatLng, title: String, data: String) {
 
         mMap = googleMap
 
 
-
         val mark = mMap.addMarker(
             MarkerOptions().position(position).snippet(title).title(data).icon(
-            bitmapDescriptorFromVector(applicationContext, R.drawable.ic_baseline_emoji_flags_24)))
+                bitmapDescriptorFromVector(
+                    applicationContext,
+                    R.drawable.ic_baseline_emoji_flags_24
+                )
+            )
+        )
         mark.showInfoWindow()
     }
 
 
-    private fun  bitmapDescriptorFromVector(context: Context, vectorResId:Int):BitmapDescriptor {
+    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor {
         var vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable!!.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
-        var bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-        var canvas =  Canvas(bitmap);
+        vectorDrawable!!.setBounds(
+            0,
+            0,
+            vectorDrawable.getIntrinsicWidth(),
+            vectorDrawable.getIntrinsicHeight()
+        );
+        var bitmap = Bitmap.createBitmap(
+            vectorDrawable.getIntrinsicWidth(),
+            vectorDrawable.getIntrinsicHeight(),
+            Bitmap.Config.ARGB_8888
+        );
+        var canvas = Canvas(bitmap);
         vectorDrawable.draw(canvas);
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
 
+    private fun goToLocationFromAddress(strAddress: String?): LatLng {
+        //Create coder with Activity context - this
+        val coder = Geocoder(this)
+        val address: List<Address>?
+        val latLng: LatLng
+        val emptyLatLng = LatLng(0.0, 0.0)
+
+
+        //Get latLng from String
+        address = coder.getFromLocationName(strAddress, 5)
+
+        //check for null
+        if (address != null) {
+
+            //Lets take first possibility from the all possibilities.
+
+            val location = address[0]
+             latLng =
+                LatLng(
+                    location.latitude,
+                    location.longitude
+                )
+
+
+            return latLng
+
+        }
+
+        return emptyLatLng
+
+    }
+
+
+
+
+
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+        private const val LOCATIONS = "LOCATIONS"
+        private const val NAMES = "NAMES"
+        private const val DESCRIPTIONS = "DESCRIPTIONSS"
 
     }
 
