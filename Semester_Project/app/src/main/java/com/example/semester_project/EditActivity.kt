@@ -51,6 +51,11 @@ class EditActivity : Activity() {
             startActivityForResult(tmpIntent, position + 1)
         }
 
+        mLocationList.setOnItemLongClickListener { _, _, position, _ ->
+            mAdapter.remove(position)
+            true
+        }
+
         mLocationList.adapter = mAdapter
 
         val submitButton = findViewById<View>(R.id.submitBut) as Button

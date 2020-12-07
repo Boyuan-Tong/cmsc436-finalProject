@@ -22,6 +22,12 @@ class LocationListAdapter(private val mContext: Context, tourId: String) : BaseA
         notifyDataSetChanged()
     }
 
+    fun remove(pos: Int) {
+        mTour.removeAt(pos)
+        locationIds.removeAt(pos)
+        notifyDataSetChanged()
+    }
+
     fun clear() {
         mTour.clear()
         notifyDataSetChanged()
