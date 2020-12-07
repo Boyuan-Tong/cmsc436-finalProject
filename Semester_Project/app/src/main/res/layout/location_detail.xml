@@ -19,8 +19,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
-        android:layout_marginHorizontal="10dp"
-        android:layout_marginVertical="10dp">
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginVertical="20dp"
+        app:cardCornerRadius="10dp">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -29,21 +30,21 @@
                 android:id="@+id/locationName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="25dp"
+                android:textSize="30dp"
                 android:textStyle="bold"
                 android:textColor="@color/black"
-                android:layout_marginTop="20dp"
-                android:layout_marginHorizontal="5dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginHorizontal="10dp"
                 app:layout_constraintTop_toTopOf="parent"
                 />
             <TextView
                 android:id="@+id/locationAddress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="30dp"
                 android:textColor="@color/black"
                 android:textSize="20dp"
-                android:layout_marginHorizontal="5dp"
+                android:layout_marginHorizontal="10dp"
                 android:layout_marginBottom="10dp"
                 app:layout_constraintTop_toBottomOf="@id/locationName"/>
 
@@ -54,17 +55,18 @@
                 android:layout_marginTop="20dp"
                 android:textColor="@color/black"
                 android:textSize="20dp"
-                android:layout_marginHorizontal="5dp"
+                android:layout_marginHorizontal="10dp"
                 android:layout_marginVertical="10dp"
                 app:layout_constraintTop_toBottomOf="@id/locationAddress"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/locationImageRecycleView"
-                android:layout_marginVertical="20dp"
+                android:layout_marginVertical="40dp"
                 android:layout_marginHorizontal="10dp"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                app:layout_constraintTop_toBottomOf="@id/locationDesc"/>
+                app:layout_constraintTop_toBottomOf="@id/locationDesc"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>

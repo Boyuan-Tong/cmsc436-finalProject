@@ -13,4 +13,12 @@
     <color name="purple">#673ab7</color>
     <color name="darkPurple">#4527a0</color>
     <color name="grey">#dadadb</color>
+    <color name="orange">#ffcc33</color>
+    <color name="redOrange">#ff9933</color>
+    <color name="lightYellow">#FFEC8B</color>
+    <color name="pinkOrange">#ff6666</color>
+    <color name="grassGreen">#3CB371</color>
+    <color name="darkPink">#DB7093</color>
+    <color name="skin">#FFE7BA</color>
+    <color name="mint">#40E0D0</color>
 </resources>

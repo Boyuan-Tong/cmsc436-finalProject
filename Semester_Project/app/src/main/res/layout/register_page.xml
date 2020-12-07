@@ -13,7 +13,8 @@
         android:background="@color/purple"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"
-        app:title="Register"
+        app:title="@string/app_name"
+        app:subtitle="Register"
         app:layout_constraintTop_toTopOf="parent"
         />
 

@@ -4,9 +4,11 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.CheckBox
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -18,7 +20,8 @@ class MainActivity : Activity() {
     lateinit var toolBar: Toolbar
     lateinit var recycleView: RecyclerView
     lateinit var mAdapter: CardAdapter
-
+    lateinit var checkBox: CheckBox
+    lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,10 +48,15 @@ class MainActivity : Activity() {
             }
         }
 
+        //TODO
+        mAuth = FirebaseAuth.getInstance()
+        var isLogin = false
+        if(mAuth.currentUser != null) isLogin = true
+
         // CardView & RecycleView
         recycleView = findViewById(R.id.recyclerView)
         recycleView.layoutManager = LinearLayoutManager(this)
-        mAdapter = CardAdapter(this)
+        mAdapter = CardAdapter(this, isLogin)
         recycleView.adapter = mAdapter
     }
 

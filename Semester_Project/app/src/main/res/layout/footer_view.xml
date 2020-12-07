@@ -5,6 +5,9 @@
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
     android:text="Add new location"
+    android:textColor="@color/darkPurple"
+    android:textStyle="bold"
+    android:background="@color/grey"
     android:textSize="30sp" >
 
 </TextView>

@@ -54,6 +54,8 @@ class LoginActivity: Activity() {
                 val intent = Intent(this, RegisterActivity::class.java)
                 startActivityForResult(intent, REGISTER_REQUEST)
             }
+
+            FavoriteList.myFavoriteList = mutableMapOf()
         } else {
             setContentView(R.layout.user_page)
             setToolbar()
@@ -69,6 +71,9 @@ class LoginActivity: Activity() {
             mName.text = regex.split(mAuth.currentUser!!.email!!)[0]
 
             mAdapter = FavorateListAdapter(applicationContext)
+            FavoriteList.myFavoriteList?.values!!.forEach {
+                mAdapter.add(it)
+            }
             mFavorateList = findViewById(R.id.favorateListView)
             mFavorateList.adapter = mAdapter
 
@@ -202,10 +207,14 @@ class LoginActivity: Activity() {
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Toast.makeText(applicationContext, "Login successful!", Toast.LENGTH_LONG)
+                    Log.i(TAG, "fuck")
+                    Toast.makeText(applicationContext, "Log" +
+                            "" +
+                            "in successful!", Toast.LENGTH_LONG)
                         .show()
                     recreate()
                 } else {
+                    Log.i(TAG,"why")
                     Toast.makeText(
                         applicationContext,
                         "Login failed! Please try again later",

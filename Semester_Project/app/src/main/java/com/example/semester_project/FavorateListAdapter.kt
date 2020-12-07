@@ -18,6 +18,11 @@ class FavorateListAdapter(private val mContext: Context) : BaseAdapter() {
         notifyDataSetChanged()
     }
 
+    fun add(tour: Tour) {
+        mTour.add(tour)
+        notifyDataSetChanged()
+    }
+
     fun clear() {
         mTour.clear()
         tourId.clear()

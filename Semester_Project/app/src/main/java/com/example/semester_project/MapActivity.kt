@@ -2,12 +2,14 @@ package com.example.semester_project
 
 
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -33,12 +35,33 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
     private lateinit var mLocation: Location
     private lateinit var mFused: FusedLocationProviderClient
     private lateinit var lastLocation: Location
+    private lateinit var toolBar: Toolbar
+
 
 
     //TODO: implement Map logic
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mapslayout)
+
+        toolBar = findViewById(R.id.toolbar)
+        toolBar.inflateMenu(R.menu.switch_activities)
+        toolBar.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.discovery -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                R.id.user -> {
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> super.onOptionsItemSelected(item)
+            }
+        }
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment

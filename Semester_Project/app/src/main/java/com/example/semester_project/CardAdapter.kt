@@ -5,12 +5,14 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 
-class CardAdapter(val context: Context) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
+class CardAdapter(val context: Context, val isLogin: Boolean) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
     private val mTours = ArrayList<Tour>()
     private val tourId = ArrayList<String>()
 
@@ -32,6 +34,7 @@ class CardAdapter(val context: Context) : RecyclerView.Adapter<CardAdapter.ViewH
         val descriptionView = itemView.findViewById<TextView>(R.id.tour_description)
         val cardView = itemView.findViewById<CardView>(R.id.card_view)
         val authorView = itemView.findViewById<TextView>(R.id.tour_author)
+        val checkBox = itemView.findViewById<CheckBox>(R.id.favoriteCheckBox)
 
     }
 
@@ -63,6 +66,20 @@ class CardAdapter(val context: Context) : RecyclerView.Adapter<CardAdapter.ViewH
             mTours[position].packageIntent(tmpIntent)
             tmpIntent.putExtra(TOUR_ID, tourId[position])
             context.startActivity(tmpIntent)
+        }
+
+        holder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
+            if(!isLogin){
+                Toast.makeText(context,"Please login first!", Toast.LENGTH_LONG)
+                val tmpIntent = Intent(context, LoginActivity::class.java)
+                context.startActivity(tmpIntent)
+            }else{
+                if(isChecked){
+                    FavoriteList.remove(mTours[position].name)
+                }else{
+                    FavoriteList.add(mTours[position].name, mTours[position])
+                }
+            }
         }
 
     }
