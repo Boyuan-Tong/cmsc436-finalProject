@@ -12,17 +12,12 @@ import java.util.ArrayList
 
 class LocationListAdapter(private val mContext: Context, tourId: String) : BaseAdapter() {
 
-    private val mTour = ArrayList<Bundle>()
+    private val mTour = ArrayList<Location>()
     private val tourId = tourId
     private var locationIds = ArrayList<String>()
 
-    fun addBundle(bundle:Bundle){
-        mTour.add(bundle)
-        notifyDataSetChanged()
-    }
-
-    fun addLocation(location: Location, id: String) {
-        mTour.add(location.packageBundle())
+    fun add(location: Location, id: String) {
+        mTour.add(location)
         locationIds.add(id)
         notifyDataSetChanged()
     }
@@ -40,14 +35,34 @@ class LocationListAdapter(private val mContext: Context, tourId: String) : BaseA
         return locationIds[pos]
     }
 
+    fun getLocations(): ArrayList<String> {
+        val result = ArrayList<String>()
+        for (location in mTour)
+            result.add(location.address)
+        return result
+    }
+
+    fun getNames(): ArrayList<String> {
+        val result = ArrayList<String>()
+        for (location in mTour)
+            result.add(location.name)
+        return result
+    }
+
+    fun getDescriptions(): ArrayList<String> {
+        val result = ArrayList<String>()
+        for (location in mTour)
+            result.add(location.description)
+        return result
+    }
+
     override fun getCount(): Int {
         return mTour.size
     }
 
     override fun getItem(pos: Int): Location {
-        val bundle = mTour[pos]
-        return Location(bundle.getString(NAME)!!, bundle.getString(LOCATION_ADDRESS)!!,
-            bundle.getString(DESCRIPTION)!!, bundle.getStringArrayList(IMAGES)!!)
+        val location = mTour[pos]
+        return Location(location.name, location.address, location.address, location.images)
     }
 
     override fun getItemId(pos: Int): Long {
@@ -84,7 +99,7 @@ class LocationListAdapter(private val mContext: Context, tourId: String) : BaseA
         if (pos == -1)
             return
         mTour.removeAt(pos)
-        mTour.add(pos, location.packageBundle())
+        mTour.add(pos, location)
         notifyDataSetChanged()
     }
 

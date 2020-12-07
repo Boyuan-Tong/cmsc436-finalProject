@@ -46,8 +46,10 @@ class TourDetailActivity : Activity() {
         val showTourBut = findViewById<Button>(R.id.showTourBut)
         showTourBut.setOnClickListener {
             val intent = Intent(this, MapActivity::class.java)
-            // TODO
-            intent.putExtra("tour", tour)
+
+            intent.putExtra(LOCATIONS, adapter.getLocations())
+            intent.putExtra(NAMES, adapter.getNames())
+            intent.putExtra(DESCRIPTIONS, adapter.getDescriptions())
             startActivity(intent)
         }
     }
@@ -60,16 +62,16 @@ class TourDetailActivity : Activity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 adapter.clear()
 
-                var tour: Tour? = null
+                var tour: Location? = null
                 for (postSnapshot in dataSnapshot.child(adapter.getTourId())
                     .children) {
                     try {
-                        tours.add(postSnapshot.key!!)
-                        tour = postSnapshot.getValue(Tour::class.java)
+                        // TODO
+                        tour = postSnapshot.getValue(Location::class.java)
                     } catch (e: Exception) {
                         Log.e(TAG, e.toString())
                     } finally {
-                        adapter.addLocation(tour!!, postSnapshot.key!!)
+                        adapter.add(tour!!, postSnapshot.key!!)
                     }
                 }
             }
@@ -83,6 +85,9 @@ class TourDetailActivity : Activity() {
     companion object {
 
         private const val TAG = "Semester-Project"
+        private const val LOCATIONS = "LOCATIONS"
+        private const val NAMES = "NAMES"
+        private const val DESCRIPTIONS = "DESCRIPTIONSS"
         private const val TOUR_ID = "TOUR_ID"
         private const val AUTHOR = "AUTHOR"
         private const val DESCRIPTION = "DESCRIPTION"
