@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.MotionEvent
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,13 +12,11 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.lang.Exception
-import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener as OnItemTouchListener
 
 
 class MainActivity : Activity() {
     lateinit var toolBar: Toolbar
     lateinit var recycleView: RecyclerView
-    lateinit var myTours: List<Tour>
     lateinit var mAdapter: CardAdapter
 
 

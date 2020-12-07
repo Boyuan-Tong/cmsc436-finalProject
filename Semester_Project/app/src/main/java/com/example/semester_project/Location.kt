@@ -1,16 +1,17 @@
 package com.example.semester_project
 
 import android.content.Intent
+import android.net.Uri
 
 class Location {
     var address: String
-    val images = ArrayList<String>()
+    val images = ArrayList<Uri>()
     var description: String
     var name: String
 
     constructor(i: Intent) {
         address = i.getStringExtra(LOCATION_ADDRESS)!!
-        val tmpImages = i.getStringArrayListExtra(IMAGES)
+        val tmpImages = i.getParcelableArrayListExtra<Uri>(IMAGES)
         if (tmpImages != null) {
             for (image in tmpImages) {
                 images.add(image)
@@ -20,7 +21,7 @@ class Location {
         name = i.getStringExtra(NAME)!!
     }
 
-    constructor(lName:String, address: String, des: String, photos: ArrayList<String> = ArrayList()) {
+    constructor(lName:String, address: String, des: String, photos: ArrayList<Uri> = ArrayList()) {
         this.address = address
         for (photo in photos) {
             images.add(photo)
@@ -30,7 +31,7 @@ class Location {
     }
 
     override fun toString(): String {
-        var result = address + ITEM_SEP + NAME + ITEM_SEP + images.size
+        var result = address + ITEM_SEP + name + ITEM_SEP + images.size
         for (image in images) {
             result += ITEM_SEP + image
         }

@@ -62,7 +62,7 @@ class LocationListAdapter(private val mContext: Context, tourId: String) : BaseA
 
     override fun getItem(pos: Int): Location {
         val location = mTour[pos]
-        return Location(location.name, location.address, location.address, location.images)
+        return Location(location.name, location.address, location.description, location.images)
     }
 
     override fun getItemId(pos: Int): Long {

@@ -6,13 +6,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
-import android.view.Menu
 import android.view.View
 import android.widget.*
-import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.util.*
 import kotlin.collections.ArrayList
 
 class AddLocationActivity: Activity() {
@@ -26,7 +23,7 @@ class AddLocationActivity: Activity() {
     private lateinit var nameView: EditText
     private lateinit var addressView: EditText
     private lateinit var descView: EditText
-    private val images = ArrayList<String>()
+    private val images = ArrayList<Uri>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,14 +67,14 @@ class AddLocationActivity: Activity() {
         nameView.setText(intent.getStringExtra(NAME))
         addressView.setText(intent.getStringExtra(LOCATION_ADDRESS))
         descView.setText(intent.getStringExtra(DESCRIPTION))
-        val photos = intent.getStringArrayListExtra(IMAGES)
+        val photos = intent.getParcelableArrayListExtra<Uri>(IMAGES)
         if (photos != null)
             for (i in photos.indices) {
                 images.add(photos[i])
                 when (i) {
-                    0 -> mImage1.setImageURI(Uri.fromFile(File(photos[0])))
-                    1 -> mImage2.setImageURI(Uri.fromFile(File(photos[1])))
-                    2 -> mImage3.setImageURI(Uri.fromFile(File(photos[2])))
+                    0 -> mImage1.setImageURI(photos[0])
+                    1 -> mImage2.setImageURI(photos[1])
+                    2 -> mImage3.setImageURI(photos[2])
                 }
             }
     }
@@ -106,8 +103,8 @@ class AddLocationActivity: Activity() {
         tmpIntent.putExtra(NAME, name)
         tmpIntent.putExtra(LOCATION_ADDRESS, address)
         tmpIntent.putExtra(DESCRIPTION, description)
-        while ("" in images)
-            images.remove("")
+        while (Uri.parse("") in images)
+            images.remove(Uri.parse(""))
         tmpIntent.putExtra(IMAGES, images)
 
         setResult(RESULT_OK, tmpIntent)
@@ -117,7 +114,7 @@ class AddLocationActivity: Activity() {
 
     private fun requestImage(requestCode: Int) {
         val tmpIntent = Intent(
-            Intent.ACTION_PICK,
+            Intent.ACTION_OPEN_DOCUMENT,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         )
         startActivityForResult(tmpIntent, requestCode)
@@ -132,9 +129,9 @@ class AddLocationActivity: Activity() {
             if (selectedImage != null) {
                 try {
                     if (images.size == 0)
-                        images.add(selectedImage.path!!)
+                        images.add(selectedImage)
                     else
-                        images[0] = selectedImage.path!!
+                        images[0] = selectedImage
                     mImage1.setImageURI(selectedImage)
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
@@ -150,11 +147,11 @@ class AddLocationActivity: Activity() {
                 try {
                     when(images.size) {
                         0 -> {
-                            images.add("")
-                            images.add(selectedImage.path!!)
+                            images.add(Uri.parse(""))
+                            images.add(selectedImage)
                         }
-                        1 -> images.add(selectedImage.path!!)
-                        else -> images[1] = selectedImage.path!!
+                        1 -> images.add(selectedImage)
+                        else -> images[1] = selectedImage
                     }
                     mImage2.setImageURI(selectedImage)
                 } catch (e: FileNotFoundException) {
@@ -171,16 +168,16 @@ class AddLocationActivity: Activity() {
                 try {
                     when(images.size) {
                         0 -> {
-                            images.add("")
-                            images.add("")
-                            images.add(selectedImage.path!!)
+                            images.add(Uri.parse(""))
+                            images.add(Uri.parse(""))
+                            images.add(selectedImage)
                         }
                         1 -> {
-                            images.add("")
-                            images.add(selectedImage.path!!)
+                            images.add(Uri.parse(""))
+                            images.add(selectedImage)
                         }
-                        2 -> images.add(selectedImage.path!!)
-                        3 -> images[2] = selectedImage.path!!
+                        2 -> images.add(selectedImage)
+                        3 -> images[2] = selectedImage
                     }
                     mImage3.setImageURI(selectedImage)
                 } catch (e: FileNotFoundException) {

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 
 class LocationImageAdapter(val context: Context) : RecyclerView.Adapter<LocationImageAdapter.ViewHolder>() {
 
@@ -14,6 +15,7 @@ class LocationImageAdapter(val context: Context) : RecyclerView.Adapter<Location
 
     fun add(uri: Uri) {
         myImages.add(uri)
+        notifyDataSetChanged()
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
@@ -33,6 +35,6 @@ class LocationImageAdapter(val context: Context) : RecyclerView.Adapter<Location
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val imagePath = myImages[position]
-        holder.imgView.setImageURI(imagePath)
+        Glide.with(context).load(imagePath).into(holder.imgView)
     }
 }

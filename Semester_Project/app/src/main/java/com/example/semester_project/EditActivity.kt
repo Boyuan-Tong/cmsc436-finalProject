@@ -1,7 +1,6 @@
 package com.example.semester_project
 
 import android.app.Activity
-import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -79,7 +78,8 @@ class EditActivity : Activity() {
             return
         }
 
-        val author = FirebaseAuth.getInstance().currentUser!!.email
+        val regex = "@".toRegex()
+        val author = regex.split(FirebaseAuth.getInstance().currentUser!!.email!!)[0]
         val tourName = mTourName.text.toString()
         val description = mDescription.text.toString()
         val tourReference = FirebaseDatabase.getInstance().getReference("tours")
@@ -118,27 +118,23 @@ class EditActivity : Activity() {
             locationsReference.child(locId).child("description").setValue(location.description)
 
             for (j in location.images.indices) {
-                image = Uri.fromFile(File(location.images[j]))
-                uploadTask = imageReference.child(locId).child(image.lastPathSegment!!)
+                image = location.images[j]
+                uploadTask = imageReference.child(locId).child(image.lastPathSegment!! + "$j")
                     .putFile(image)
 
                 uploadTask.addOnFailureListener {
                     Log.e(TAG, it.toString())
-                }.addOnSuccessListener {}
+                }
             }
-
-
         }
+        cleanFile()
+        finish()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
-        Log.i(TAG, "Entered onActivityResult()")
-
-        Log.i(TAG, "$resultCode  $RESULT_OK  $requestCode  $ADD_LOCATION_REQUEST")
         if (requestCode == ADD_LOCATION_REQUEST && resultCode == RESULT_OK) {
             var location = data?.let { Location(it) }
-            Log.i(TAG, (location == null).toString())
             if (location != null) {
                 mAdapter.add(location, "")
             }
@@ -168,6 +164,26 @@ class EditActivity : Activity() {
 
     }
 
+    override fun onDestroy() {
+        cleanFile()
+
+        super.onDestroy()
+    }
+
+    private fun cleanFile() {
+        var writer: PrintWriter? = null
+        try {
+            val fos = openFileOutput(FILE_NAME, Context.MODE_PRIVATE)
+            writer = PrintWriter(BufferedWriter(OutputStreamWriter(fos)))
+            writer.println("")
+
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            writer?.close()
+        }
+    }
+
     private fun loadItems() {
         var reader: BufferedReader? = null
         try {
@@ -176,18 +192,18 @@ class EditActivity : Activity() {
 
             var address: String?
             var name: String?
-            var images = ArrayList<String>()
+            var images = ArrayList<Uri>()
             var description: String?
             var num: Int
 
             do {
                 address = reader.readLine()
-                if (address == null)
+                if (address.isNullOrEmpty())
                     break
                 name = reader.readLine()
                 num = Integer.parseInt(reader.readLine())
                 for (i in 0 until num) {
-                    images.add(reader.readLine())
+                    images.add(Uri.parse(reader.readLine()))
                 }
                 description = reader.readLine()
                 mAdapter.add(Location(name, address, description, images), "")
