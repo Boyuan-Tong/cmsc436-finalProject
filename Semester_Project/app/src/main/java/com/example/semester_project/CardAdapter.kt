@@ -11,10 +11,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
-class CardAdapter(val context: Context, val isLogin: Boolean) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
+class CardAdapter(val context: Context) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
     private val mTours = ArrayList<Tour>()
     private val tourId = ArrayList<String>()
+    private val userFavorate = ArrayList<String>()
 
     fun add(tour: Tour, id: String) {
         mTours.add(tour)
@@ -22,9 +25,19 @@ class CardAdapter(val context: Context, val isLogin: Boolean) : RecyclerView.Ada
         notifyDataSetChanged()
     }
 
+    fun add(favorate: String) {
+        userFavorate.add(favorate)
+        notifyDataSetChanged()
+    }
+
     fun clear() {
         mTours.clear()
         tourId.clear()
+        notifyDataSetChanged()
+    }
+
+    fun clearFavorate() {
+        userFavorate.clear()
         notifyDataSetChanged()
     }
 
@@ -54,6 +67,7 @@ class CardAdapter(val context: Context, val isLogin: Boolean) : RecyclerView.Ada
 //        //Use the first Image from frist location as Title Image
 //        val location = mTours[position].locations
 //        val images = location[0].getStringArrayList(IMAGES)
+        holder.imgView.setImageResource(R.drawable.default_tour_image)
 //        holder.imgView.setImageBitmap(BitmapFactory.decodeFile(images?.get(0)))
 //        //
 
@@ -68,16 +82,20 @@ class CardAdapter(val context: Context, val isLogin: Boolean) : RecyclerView.Ada
             context.startActivity(tmpIntent)
         }
 
-        holder.checkBox.setOnCheckedChangeListener { buttonView, isChecked ->
-            if(!isLogin){
-                Toast.makeText(context,"Please login first!", Toast.LENGTH_LONG)
-                val tmpIntent = Intent(context, LoginActivity::class.java)
-                context.startActivity(tmpIntent)
+        holder.checkBox.isChecked = tourId[position] in userFavorate
+
+        holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
+            if(FirebaseAuth.getInstance().currentUser == null){
+                Toast.makeText(context,"Please login first!", Toast.LENGTH_LONG).show()
+                holder.checkBox.isChecked = false
             }else{
+                val user = FirebaseAuth.getInstance().currentUser!!.uid
                 if(isChecked){
-                    FavoriteList.remove(mTours[position].name)
+                    FirebaseDatabase.getInstance().getReference("users").child(user)
+                        .child(tourId[position]).setValue(mTours[position])
                 }else{
-                    FavoriteList.add(mTours[position].name, mTours[position])
+                    FirebaseDatabase.getInstance().getReference("users").child(user)
+                        .child(tourId[position]).removeValue()
                 }
             }
         }

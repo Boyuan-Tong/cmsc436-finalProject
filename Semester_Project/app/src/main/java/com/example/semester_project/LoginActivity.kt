@@ -55,7 +55,6 @@ class LoginActivity: Activity() {
                 startActivityForResult(intent, REGISTER_REQUEST)
             }
 
-            FavoriteList.myFavoriteList = mutableMapOf()
         } else {
             setContentView(R.layout.user_page)
             setToolbar()
@@ -71,9 +70,6 @@ class LoginActivity: Activity() {
             mName.text = regex.split(mAuth.currentUser!!.email!!)[0]
 
             mAdapter = FavorateListAdapter(applicationContext)
-            FavoriteList.myFavoriteList?.values!!.forEach {
-                mAdapter.add(it)
-            }
             mFavorateList = findViewById(R.id.favorateListView)
             mFavorateList.adapter = mAdapter
 
@@ -120,44 +116,6 @@ class LoginActivity: Activity() {
                 override fun onCancelled(databaseError: DatabaseError) {
                 }
             })
-
-//            FirebaseDatabase.getInstance().getReference("tours")
-//                .addValueEventListener(object : ValueEventListener {
-//                override fun onDataChange(dataSnapshot: DataSnapshot) {
-//                    mAdapter.clear()
-//
-//                    var tour: Tour? = null
-//                    var name: String?
-//                    var description: String?
-//                    var author: String?
-//                    val locations = ArrayList<Bundle>()
-//                    var location: Location?
-//                    for (postSnapshot in dataSnapshot.children) {
-//                        if (postSnapshot.key in tours) {
-//                            try {
-//                                name = postSnapshot.child(NAME).getValue(String::class.java)
-//                                description = postSnapshot.child(DES).getValue(String::class.java)
-//                                author = postSnapshot.child(AUTHOR).getValue(String::class.java)
-//                                for (loc in postSnapshot.child(LOCATIONS).children) {
-//                                    location = loc.getValue(Location::class.java)
-//                                    locations.add(location!!.packageBundle())
-//                                }
-//                                tour = Tour(locations, name!!, description!!, author!!)
-//                            } catch (e: Exception) {
-//                                Log.e(TAG, e.toString())
-//                            } finally {
-//                                mAdapter.add(tour!!)
-//                            }
-//                        }
-//
-//                    }
-//
-//                }
-//
-//                override fun onCancelled(databaseError: DatabaseError) {
-//
-//                }
-//            })
         }
     }
 
@@ -207,19 +165,13 @@ class LoginActivity: Activity() {
         mAuth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.i(TAG, "fuck")
-                    Toast.makeText(applicationContext, "Log" +
-                            "" +
-                            "in successful!", Toast.LENGTH_LONG)
-                        .show()
+                    Toast.makeText(applicationContext, "Login successful!",
+                        Toast.LENGTH_LONG).show()
                     recreate()
                 } else {
                     Log.i(TAG,"why")
-                    Toast.makeText(
-                        applicationContext,
-                        "Login failed! Please try again later",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(applicationContext, "Login failed! Please try again later",
+                        Toast.LENGTH_LONG).show()
                 }
             }
     }

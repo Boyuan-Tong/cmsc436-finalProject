@@ -20,7 +20,6 @@ class MainActivity : Activity() {
     lateinit var toolBar: Toolbar
     lateinit var recycleView: RecyclerView
     lateinit var mAdapter: CardAdapter
-    lateinit var checkBox: CheckBox
     lateinit var mAuth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,44 +47,65 @@ class MainActivity : Activity() {
             }
         }
 
-        //TODO
         mAuth = FirebaseAuth.getInstance()
-        var isLogin = false
-        if(mAuth.currentUser != null) isLogin = true
 
         // CardView & RecycleView
         recycleView = findViewById(R.id.recyclerView)
         recycleView.layoutManager = LinearLayoutManager(this)
-        mAdapter = CardAdapter(this, isLogin)
+        mAdapter = CardAdapter(this)
         recycleView.adapter = mAdapter
     }
 
     override fun onStart() {
         super.onStart()
 
-        if (FirebaseDatabase.getInstance().getReference("tours") == null)
-            return
-
         FirebaseDatabase.getInstance().getReference("tours")
             .addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                mAdapter.clear()
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    mAdapter.clear()
 
-                var tour: Tour? = null
-                for (postSnapshot in dataSnapshot.children) {
-                    try {
-                        tour = postSnapshot.getValue(Tour::class.java)
-                    } catch (e: Exception) {
-                        Log.e(TAG, e.toString())
-                    } finally {
-                        mAdapter.add(tour!!, postSnapshot.key!!)
+                    var tour: Tour? = null
+                    for (postSnapshot in dataSnapshot.children) {
+                        try {
+                            tour = postSnapshot.getValue(Tour::class.java)
+                        } catch (e: Exception) {
+                            Log.e(TAG, e.toString())
+                        } finally {
+                            mAdapter.add(tour!!, postSnapshot.key!!)
+                        }
                     }
                 }
-            }
 
-            override fun onCancelled(databaseError: DatabaseError) {
-            }
-        })
+                override fun onCancelled(databaseError: DatabaseError) {
+                }
+            })
+
+        if (mAuth.currentUser == null) {
+            mAdapter.clearFavorate()
+            return
+        }
+
+
+        FirebaseDatabase.getInstance().getReference("users")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    mAdapter.clearFavorate()
+
+                    for (postSnapshot in dataSnapshot.child(mAuth.currentUser!!.uid)
+                        .children) {
+                        try {
+                            mAdapter.add(postSnapshot.key!!)
+                        } catch (e: Exception) {
+                            Log.e(TAG, e.toString())
+                        }
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                }
+            })
+
+
     }
 
     companion object {
