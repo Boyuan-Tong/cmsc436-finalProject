@@ -17,6 +17,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -65,6 +66,8 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        mFused = LocationServices.getFusedLocationProviderClient(this)
 
         // Get the string array list intents from Tour detail activity
         if (intent.getStringArrayListExtra(LOCATIONS) == null)
