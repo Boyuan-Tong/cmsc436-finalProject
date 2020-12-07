@@ -1,27 +1,27 @@
 package com.example.semester_project
 
 import android.content.Context
-import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
 import java.util.*
+import kotlin.collections.ArrayList
 
 class FavorateListAdapter(private val mContext: Context) : BaseAdapter() {
 
     private val mTour = ArrayList<Tour>()
+    private val tourId = ArrayList<String>()
 
-    fun add(tour: Tour) {
+    fun add(tour: Tour, id: String) {
         mTour.add(tour)
+        tourId.add(id)
         notifyDataSetChanged()
     }
 
     fun clear() {
         mTour.clear()
+        tourId.clear()
         notifyDataSetChanged()
     }
 
@@ -30,12 +30,15 @@ class FavorateListAdapter(private val mContext: Context) : BaseAdapter() {
     }
 
     override fun getItem(pos: Int): Tour {
-        val tour = mTour[pos]
-        return tour
+        return mTour[pos]
     }
 
-    override fun getItemId(pos: Int): Long {
-        return pos.toLong()
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
+    }
+
+    fun getTourId(pos: Int): String {
+        return tourId[pos]
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
@@ -45,7 +48,6 @@ class FavorateListAdapter(private val mContext: Context) : BaseAdapter() {
         if (null == convertView) {
             viewHolder = ViewHolder()
 
-            // TODO: layout and area
             val newView = LayoutInflater.from(mContext).inflate(R.layout.favorite_tour, parent, false)
             viewHolder.name = newView.findViewById(R.id.tourName)
             viewHolder.author = newView.findViewById(R.id.tourAuthor)
@@ -58,9 +60,6 @@ class FavorateListAdapter(private val mContext: Context) : BaseAdapter() {
         }
 
         viewHolder.position = position
-        //var tour = FirebaseDatabase.getInstance().getReference("tours")
-        //    .child(tourId)
-        // TODO - Fill the areas
         viewHolder.name!!.text = tour.name
         viewHolder.author!!.text = tour.author
         viewHolder.description!!.text = tour.description
@@ -68,13 +67,6 @@ class FavorateListAdapter(private val mContext: Context) : BaseAdapter() {
         return viewHolder.mItemLayout
     }
 
-    fun adjust(tour: Tour, pos: Int) {
-        if (pos == -1)
-            return
-        mTour.removeAt(pos)
-        mTour.add(pos, tour)
-        notifyDataSetChanged()
-    }
 
     internal class ViewHolder {
         var position: Int = 0

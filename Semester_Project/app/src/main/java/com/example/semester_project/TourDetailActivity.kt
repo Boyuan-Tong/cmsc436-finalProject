@@ -5,44 +5,88 @@ import android.content.Intent
 
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.semester_project.Tour
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import java.lang.Exception
 
 class TourDetailActivity : Activity() {
+    private lateinit var titleView: TextView
+    private lateinit var descView: TextView
+    private lateinit var authorView: TextView
+    private lateinit var listView: ListView
+    private lateinit var adapter: LocationListAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tour_detail)
-        val intent = getIntent()
-        val tour: Tour = intent.getParcelableExtra<Parcelable>("tour") as Tour
-        val titleView = findViewById<TextView>(R.id.detail_title)
-        val descView = findViewById<TextView>(R.id.detail_description)
-        val authorView = findViewById<TextView>(R.id.detail_author)
-        val locations = tour.locations
-        titleView.text = tour.name
-        descView.text = tour.description
-        authorView.text = tour.author
+        titleView = findViewById(R.id.detail_title)
+        descView = findViewById(R.id.detail_description)
+        authorView = findViewById(R.id.detail_author)
+        titleView.text = intent.getStringExtra(NAME)
+        descView.text = intent.getStringExtra(DESCRIPTION)
+        authorView.text = intent.getStringExtra(AUTHOR)
 
 
         //ListView display list of locations
-        val listView = findViewById<ListView>(R.id.locationListView)
-        val adapter = LocationListAdapter(applicationContext)
-
-        //add location bundle to adapter
-        for(i in 0 until locations.size){
-            adapter.addBundle(locations[i])
-        }
+        listView = findViewById(R.id.locationListView)
+        adapter = LocationListAdapter(applicationContext, intent.getStringExtra(TOUR_ID)!!)
         listView.adapter = adapter
 
         //Show Tour in Map Button
         val showTourBut = findViewById<Button>(R.id.showTourBut)
-        showTourBut.setOnClickListener{v ->
+        showTourBut.setOnClickListener {
             val intent = Intent(this, MapActivity::class.java)
+            // TODO
             intent.putExtra("tour", tour)
             startActivity(intent)
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        val tour = FirebaseDatabase.getInstance().getReference("locations")
+
+        tour.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                adapter.clear()
+
+                var tour: Tour? = null
+                for (postSnapshot in dataSnapshot.child(adapter.getTourId())
+                    .children) {
+                    try {
+                        tours.add(postSnapshot.key!!)
+                        tour = postSnapshot.getValue(Tour::class.java)
+                    } catch (e: Exception) {
+                        Log.e(TAG, e.toString())
+                    } finally {
+                        adapter.addLocation(tour!!, postSnapshot.key!!)
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+            }
+        })
+    }
+
+
+    companion object {
+
+        private const val TAG = "Semester-Project"
+        private const val TOUR_ID = "TOUR_ID"
+        private const val AUTHOR = "AUTHOR"
+        private const val DESCRIPTION = "DESCRIPTION"
+        private const val NAME = "NAME"
+    }
+
 }

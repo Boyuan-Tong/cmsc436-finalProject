@@ -1,56 +1,58 @@
 package com.example.semester_project
 
 import android.app.Activity
+import android.content.ClipDescription
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Button
-import android.widget.ListView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.UploadTask
 import java.io.*
 import java.text.ParseException
 
-class EditActivity: Activity() {
+class EditActivity : Activity() {
 
     private lateinit var mAdapter: LocationListAdapter
     private lateinit var mLocationList: ListView
-    private lateinit var mTourName: TextView
+    private lateinit var mTourName: EditText
+    private lateinit var mDescription: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.edit_tour)
 
-        mAdapter = LocationListAdapter(applicationContext)
         mTourName = findViewById(R.id.editName)
+        mDescription = findViewById(R.id.editDesc)
 
         mLocationList = findViewById(R.id.listView)
+        mAdapter = LocationListAdapter(applicationContext, "")
 
         mLocationList.setFooterDividersEnabled(true)
-
-        val footerView = LayoutInflater.from(this).inflate(R.layout.footer_view, null, false)
-
-        mLocationList.addFooterView(footerView)
-
+        val footerView = LayoutInflater.from(this).inflate(
+            R.layout.footer_view,
+            null, false
+        )
         footerView.setOnClickListener {
             val tmpIntent = Intent(this, AddLocationActivity::class.java)
             startActivityForResult(tmpIntent, ADD_LOCATION_REQUEST)
         }
+        mLocationList.addFooterView(footerView)
 
-        mLocationList.adapter = mAdapter
-
-        mLocationList.setOnItemClickListener { parent, view, position, id ->
+        mLocationList.setOnItemClickListener { _, _, position, _ ->
             val tmpIntent = Intent(this, AddLocationActivity::class.java)
             mAdapter.getItem(position).packageIntent(tmpIntent)
             tmpIntent.putExtra(NUMBER, position)
-            startActivityForResult(tmpIntent, ADJUST_LOCATION_REQUEST)
+            startActivityForResult(tmpIntent, position)
         }
+
+        mLocationList.adapter = mAdapter
 
         val submitButton = findViewById<View>(R.id.submitBut) as Button
         submitButton.setOnClickListener { submitNewTour() }
@@ -59,22 +61,73 @@ class EditActivity: Activity() {
 
     private fun submitNewTour() {
         if (mTourName.text.isNullOrEmpty()) {
-            Toast.makeText(this, "Please Enter the Tour Name", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please Enter the Tour Name", Toast.LENGTH_LONG)
+                .show()
+            return
+        }
+        if (mDescription.text.isNullOrEmpty()) {
+            Toast.makeText(this, "Please Enter the Description", Toast.LENGTH_LONG)
+                .show()
             return
         }
 
-        if (mAdapter.count > 0) {
-            val author = FirebaseAuth.getInstance().currentUser!!.email
-            val tourName = mTourName.text.toString()
-            val tourReference = FirebaseDatabase.getInstance().getReference("Tours")
-            val id = tourReference.push().key
-            tourReference.child(id!!).child("author").setValue(author)
-            tourReference.child(id).child("tourName").setValue(tourName)
-            val imageReference = FirebaseStorage.getInstance().reference
+        if (mAdapter.count == 0) {
+            Toast.makeText(
+                this, "Please Add Locations for this Tour",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
 
-            for (i in 0 until mAdapter.count) {
-                //TODO
+        val author = FirebaseAuth.getInstance().currentUser!!.email
+        val tourName = mTourName.text.toString()
+        val description = mDescription.text.toString()
+        val tourReference = FirebaseDatabase.getInstance().getReference("tours")
+        val id = tourReference.push().key
+        if (id == null) {
+            Toast.makeText(
+                this, "Add Tour Failed! Please try again",
+                Toast.LENGTH_LONG
+            ).show()
+            return
+        }
+        tourReference.child(id).child("author").setValue(author)
+        tourReference.child(id).child("name").setValue(tourName)
+        tourReference.child(id).child("description").setValue(description)
+        val locationsReference = FirebaseDatabase.getInstance()
+            .getReference("locations").child(id)
+        val imageReference = FirebaseStorage.getInstance()
+            .getReference("locations")
+        var location: Location
+        var locId: String?
+        var image: Uri?
+        var uploadTask: UploadTask?
+
+        for (i in 0 until mAdapter.count) {
+            locId = locationsReference.push().key
+            if (locId == null) {
+                Toast.makeText(
+                    this, "Add Tour Failed! Please try again",
+                    Toast.LENGTH_LONG
+                ).show()
+                return
             }
+            location = mAdapter.getItem(i)
+            locationsReference.child(locId).child("name").setValue(location.name)
+            locationsReference.child(locId).child("address").setValue(location.address)
+            locationsReference.child(locId).child("description").setValue(location.description)
+
+            for (j in location.images.indices) {
+                image = Uri.fromFile(File(location.images[j]))
+                uploadTask = imageReference.child(locId).child(image.lastPathSegment!!)
+                    .putFile(image)
+
+                uploadTask.addOnFailureListener {
+                    Log.e(TAG, it.toString())
+                }.addOnSuccessListener {}
+            }
+
+
         }
     }
 
@@ -85,14 +138,14 @@ class EditActivity: Activity() {
         if (requestCode == ADD_LOCATION_REQUEST && resultCode == RESULT_OK) {
             var location = data?.let { Location(it) }
             if (location != null) {
-                mAdapter.addLocation(location)
+                mAdapter.addLocation(location, "")
             }
         }
 
-        if (requestCode == ADJUST_LOCATION_REQUEST && resultCode == RESULT_OK) {
+        if (requestCode != ADD_LOCATION_REQUEST && resultCode == RESULT_OK) {
             var location = data?.let { Location(it) }
             if (location != null) {
-                mAdapter.adjust(location, data!!.getIntExtra(NUMBER, -1))
+                mAdapter.adjust(location, requestCode)
             }
         }
 
@@ -113,36 +166,6 @@ class EditActivity: Activity() {
 
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        super.onCreateOptionsMenu(menu)
-//
-//        menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, "Delete all")
-//        menu.add(Menu.NONE, MENU_DUMP, Menu.NONE, "Dump to log")
-//        return true
-//    }
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            MENU_DELETE -> {
-//                mAdapter.clear()
-//                return true
-//            }
-//            MENU_DUMP -> {
-//                dump()
-//                return true
-//            }
-//            else -> return super.onOptionsItemSelected(item)
-//        }
-//    }
-//
-//    fun dump() {
-//        for (i in 0 until mAdapter.count) {
-//            val data = (mAdapter.getItem(i) as ToDoItem).toLog()
-//            Log.i(TAG,
-//                "Item " + i + ": " + data.replace(ToDoItem.ITEM_SEP, ","))
-//        }
-//    }
-
     private fun loadItems() {
         var reader: BufferedReader? = null
         try {
@@ -150,6 +173,7 @@ class EditActivity: Activity() {
             reader = BufferedReader(InputStreamReader(fis))
 
             var address: String?
+            var name: String?
             var images = ArrayList<String>()
             var description: String?
             var num: Int
@@ -158,15 +182,15 @@ class EditActivity: Activity() {
                 address = reader.readLine()
                 if (address == null)
                     break
+                name = reader.readLine()
                 num = Integer.parseInt(reader.readLine())
                 for (i in 0 until num) {
                     images.add(reader.readLine())
                 }
                 description = reader.readLine()
-                mAdapter.add(Location(address, images, description))
+                mAdapter.addLocation(Location(name, address, description, images), "")
 
-            }
-            while (true)
+            } while (true)
 
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
@@ -205,11 +229,10 @@ class EditActivity: Activity() {
 
     companion object {
 
-        private val ADD_LOCATION_REQUEST = 0
-        private val ADJUST_LOCATION_REQUEST = 1
-        private val NUMBER = "NUMBER"
-        private val FILE_NAME = "AddTourActivityData.txt"
-        private val TAG = "Semester-Project"
+        private const val ADD_LOCATION_REQUEST = -1
+        private const val NUMBER = "NUMBER"
+        private const val FILE_NAME = "AddTourActivityData.txt"
+        private const val TAG = "Semester-Project"
 
     }
 

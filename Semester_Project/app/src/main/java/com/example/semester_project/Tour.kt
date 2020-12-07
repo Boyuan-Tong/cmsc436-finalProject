@@ -1,10 +1,22 @@
 package com.example.semester_project
 
-import android.os.Bundle
-import android.os.Parcel
+import android.content.Intent
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
-import com.example.semester_project.Location
 
-@Parcelize
-data class Tour(val locations: ArrayList<Bundle>, val name:String, val description:String, val author:String) : Parcelable
+
+data class Tour(val name: String, val description: String, val author: String) {
+
+    fun packageIntent(intent: Intent) {
+        intent.putExtra(NAME, name)
+        intent.putExtra(AUTHOR, author)
+        intent.putExtra(DESCRIPTION, description)
+    }
+
+    companion object {
+        private const val AUTHOR = "AUTHOR"
+        private const val DESCRIPTION = "DESCRIPTION"
+        private const val NAME = "NAME"
+
+    }
+}

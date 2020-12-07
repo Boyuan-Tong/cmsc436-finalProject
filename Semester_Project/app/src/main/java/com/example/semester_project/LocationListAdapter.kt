@@ -6,22 +6,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
-import android.widget.CheckBox
 import android.widget.RelativeLayout
 import android.widget.TextView
-import com.google.firebase.database.FirebaseDatabase
 import java.util.ArrayList
 
-class LocationListAdapter(private val mContext: Context) : BaseAdapter() {
+class LocationListAdapter(private val mContext: Context, tourId: String) : BaseAdapter() {
 
     private val mTour = ArrayList<Bundle>()
+    private val tourId = tourId
+    private var locationIds = ArrayList<String>()
 
     fun addBundle(bundle:Bundle){
         mTour.add(bundle)
+        notifyDataSetChanged()
     }
 
-    fun addLocation(location: Location) {
+    fun addLocation(location: Location, id: String) {
         mTour.add(location.packageBundle())
+        locationIds.add(id)
         notifyDataSetChanged()
     }
 
@@ -30,15 +32,22 @@ class LocationListAdapter(private val mContext: Context) : BaseAdapter() {
         notifyDataSetChanged()
     }
 
+    fun getTourId(): String {
+        return tourId
+    }
+
+    fun getLocationId(pos: Int): String {
+        return locationIds[pos]
+    }
+
     override fun getCount(): Int {
         return mTour.size
     }
 
     override fun getItem(pos: Int): Location {
         val bundle = mTour[pos]
-        val location = Location(bundle.getString(Location.NAME)!!, bundle.getString(Location.LOCATION_ADDRESS)!!,
-        bundle.getStringArrayList(Location.IMAGES)!!, bundle.getString(Location.DESCRIPTION)!!)
-        return location
+        return Location(bundle.getString(NAME)!!, bundle.getString(LOCATION_ADDRESS)!!,
+            bundle.getString(DESCRIPTION)!!, bundle.getStringArrayList(IMAGES)!!)
     }
 
     override fun getItemId(pos: Int): Long {
@@ -52,7 +61,6 @@ class LocationListAdapter(private val mContext: Context) : BaseAdapter() {
         if (null == convertView) {
             viewHolder = ViewHolder()
 
-            // TODO: layout and area
             val newView = LayoutInflater.from(mContext).inflate(R.layout.location_card, parent, false)
             viewHolder.name = newView.findViewById(R.id.locationName)
             viewHolder.address = newView.findViewById(R.id.locationAddress)
@@ -65,11 +73,8 @@ class LocationListAdapter(private val mContext: Context) : BaseAdapter() {
         }
 
         viewHolder.position = position
-        //var tour = FirebaseDatabase.getInstance().getReference("tours")
-        //    .child(tourId)
-        // TODO - Fill the areas
         viewHolder.name!!.text = location.name
-        viewHolder.address!!.text = location.locationAddress
+        viewHolder.address!!.text = location.address
         viewHolder.description!!.text = location.description
 
         return viewHolder.mItemLayout
@@ -89,6 +94,14 @@ class LocationListAdapter(private val mContext: Context) : BaseAdapter() {
         var address: TextView? = null
         var description: TextView? = null
         var mItemLayout: RelativeLayout? = null
+    }
+
+    companion object {
+        private const val LOCATION_ADDRESS = "LOCATION_ADDRESS"
+        private const val IMAGES = "IMAGES"
+        private const val DESCRIPTION = "DESCRIPTION"
+        private const val NAME = "NAME"
+
     }
 
 }

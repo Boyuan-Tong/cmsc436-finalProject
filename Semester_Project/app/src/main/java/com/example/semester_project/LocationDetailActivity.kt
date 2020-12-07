@@ -18,10 +18,10 @@ class LocationDetailActivity: Activity() {
         val nameView = findViewById<TextView>(R.id.locationName)
         val addressView = findViewById<TextView>(R.id.locationAddress)
         val descView = findViewById<TextView>(R.id.locationDesc)
-        nameView.text = locationBundle!!.getString(Location.NAME)
-        addressView.text = locationBundle!!.getString(Location.LOCATION_ADDRESS)
-        descView.text = locationBundle!!.getString(Location.DESCRIPTION)
-        val images = locationBundle.getStringArrayList(Location.IMAGES)
+        nameView.text = locationBundle!!.getString(NAME)
+        addressView.text = locationBundle!!.getString(LOCATION_ADDRESS)
+        descView.text = locationBundle!!.getString(DESCRIPTION)
+        val images = locationBundle.getStringArrayList(IMAGES)
 
         //Set RecycleView for images
         val imageRecycleView = findViewById<RecyclerView>(R.id.locationImageRecycleView)
@@ -37,5 +37,13 @@ class LocationDetailActivity: Activity() {
             intent.putExtra("LocationBundle", locationBundle)
             startActivity(intent)
         }
+    }
+
+    companion object {
+        private const val LOCATION_ADDRESS = "LOCATION_ADDRESS"
+        private const val IMAGES = "IMAGES"
+        private const val DESCRIPTION = "DESCRIPTION"
+        private const val NAME = "NAME"
+
     }
 }

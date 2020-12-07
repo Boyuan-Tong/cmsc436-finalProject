@@ -4,16 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 
 class Location {
-    var locationAddress: String
-    var images = ArrayList<String>()
+    var address: String
+    val images = ArrayList<String>() // TODO
     var description: String
     var name: String
 
     constructor(i: Intent) {
-        locationAddress = i.getStringExtra(LOCATION_ADDRESS)!!
-        var tmpimages = i.getStringArrayListExtra(IMAGES)
-        if (tmpimages != null) {
-            for (image in tmpimages) {
+        address = i.getStringExtra(LOCATION_ADDRESS)!!
+        val tmpImages = i.getStringArrayListExtra(IMAGES)
+        if (tmpImages != null) {
+            for (image in tmpImages) {
                 images.add(image)
             }
         }
@@ -21,8 +21,8 @@ class Location {
         name = i.getStringExtra(NAME)!!
     }
 
-    constructor(lName:String, address: String, photos: ArrayList<String>, des: String) {
-        locationAddress = address
+    constructor(lName:String, address: String, des: String, photos: ArrayList<String> = ArrayList()) {
+        this.address = address
         for (photo in photos) {
             images.add(photo)
         }
@@ -31,7 +31,7 @@ class Location {
     }
 
     override fun toString(): String {
-        var result = locationAddress + ITEM_SEP + images.size
+        var result = address + ITEM_SEP + NAME + ITEM_SEP + images.size
         for (image in images) {
             result += ITEM_SEP + image
         }
@@ -41,7 +41,7 @@ class Location {
 
     fun packageIntent(intent: Intent) {
         intent.putExtra(NAME, name)
-        intent.putExtra(LOCATION_ADDRESS, locationAddress)
+        intent.putExtra(LOCATION_ADDRESS, address)
         intent.putExtra(IMAGES, images)
         intent.putExtra(DESCRIPTION, description)
     }
@@ -49,7 +49,7 @@ class Location {
 
     fun packageBundle(): Bundle{
         val bundle = Bundle()
-        bundle.putString(LOCATION_ADDRESS, locationAddress)
+        bundle.putString(LOCATION_ADDRESS, address)
         bundle.putString(NAME, name)
         bundle.putString(DESCRIPTION, description)
         bundle.putStringArrayList(IMAGES, images)
@@ -57,11 +57,11 @@ class Location {
     }
 
     companion object {
-        val ITEM_SEP = System.getProperty("line.separator")
-        val LOCATION_ADDRESS = "LOCATION_ADDRESS"
-        val IMAGES = "IMAGES"
-        val DESCRIPTION = "DESCRIPTION"
-        val NAME = "NAME"
+        private val ITEM_SEP = System.getProperty("line.separator")
+        private const val LOCATION_ADDRESS = "LOCATION_ADDRESS"
+        private const val IMAGES = "IMAGES"
+        private const val DESCRIPTION = "DESCRIPTION"
+        private const val NAME = "NAME"
 
     }
 

@@ -21,9 +21,9 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
 
         // ToolBar and Menu
-        toolBar = findViewById(R.id.toolbar) as Toolbar
+        toolBar = findViewById(R.id.toolbar)
         toolBar.setTitle(R.string.app_name)
-        toolBar.setSubtitle("Discovery")
+        toolBar.subtitle = "Discovery"
         toolBar.inflateMenu(R.menu.switch_activities)
         toolBar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -42,7 +42,7 @@ class MainActivity : Activity() {
         }
 
         // CardView & RecycleView
-        recycleView = findViewById(R.id.recyclerView) as RecyclerView
+        recycleView = findViewById(R.id.recyclerView)
         recycleView.layoutManager = LinearLayoutManager(this)
         myTours = initToursList()
         recycleView.adapter = CardAdapter(myTours, this)
@@ -51,7 +51,7 @@ class MainActivity : Activity() {
 
     // TODO: Database part
     //  Put tour information (img, name, description) into Tour object. Then add Tour objects to an Arraylist and return
-    fun initToursList():List<Tour> {
+    private fun initToursList():List<Tour> {
         var t = ArrayList<Tour>()
         val imagePath = R.drawable.default_tour_image
         val imageList = ArrayList<String>()
@@ -60,7 +60,8 @@ class MainActivity : Activity() {
         }
         val locationList = ArrayList<Bundle>()
         for(i in 1..5){
-            val location = Location("Cool Place","Some where on the moon",imageList, "Cool place where you can find 1 ton of gold")
+            val location = Location("Cool Place","Some where on the moon",
+                "Cool place where you can find 1 ton of gold", imageList)
             locationList.add(location.packageBundle())
         }
         return t

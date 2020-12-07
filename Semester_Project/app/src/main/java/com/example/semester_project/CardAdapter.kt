@@ -42,8 +42,9 @@ class CardAdapter(tours: List<Tour>, val context: Context) : RecyclerView.Adapte
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val location = myTours[position].locations
 
+        // TODO
         //Use the first Image from frist location as Title Image
-        val images = location[0].getStringArrayList(Location.IMAGES)
+        val images = location[0].getStringArrayList(IMAGES)
         holder.imgView.setImageBitmap(BitmapFactory.decodeFile(images?.get(0)))
 
         holder.titleView.text = myTours[position].name
@@ -52,9 +53,14 @@ class CardAdapter(tours: List<Tour>, val context: Context) : RecyclerView.Adapte
 
         holder.cardView.setOnClickListener { v ->
             val intent = Intent(context, TourDetailActivity::class.java)
-            intent.putExtra("tour", myTours[position] as Parcelable)
+            intent.putExtra(TOUR_ID, myTours[position] as Parcelable)
             context.startActivity(intent)
         }
 
+    }
+
+    companion object {
+        private const val IMAGES = "IMAGES"
+        private const val TOUR_ID = "TOUR_ID"
     }
 }

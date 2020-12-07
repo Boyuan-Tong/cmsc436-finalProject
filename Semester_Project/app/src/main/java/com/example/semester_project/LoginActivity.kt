@@ -3,20 +3,20 @@ package com.example.semester_project
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.util.Log
 import android.widget.*
 import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import kotlinx.android.synthetic.main.footer_view.view.*
+import com.google.firebase.database.*
+import java.lang.Exception
 
 class LoginActivity: Activity() {
-    lateinit var toolBar:Toolbar
-    lateinit var loginBut:Button
-    lateinit var registerBut:Button
-    lateinit var clearBut:Button
-    lateinit var userNameView: EditText
-    lateinit var passwordView: EditText
+    private lateinit var toolBar:Toolbar
+    private lateinit var loginBut:Button
+    private lateinit var registerBut:Button
+    private lateinit var clearBut:Button
+    private lateinit var userNameView: EditText
+    private lateinit var passwordView: EditText
 
     private lateinit var mAuth: FirebaseAuth
 
@@ -25,6 +25,7 @@ class LoginActivity: Activity() {
     private lateinit var mFavorateList: ListView
     private lateinit var user: DatabaseReference
     private lateinit var addTour: Button
+    private lateinit var signOut: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +44,7 @@ class LoginActivity: Activity() {
 
             loginBut.setOnClickListener{ loginUserAccount() }
 
-            clearBut.setOnClickListener{v ->
+            clearBut.setOnClickListener{
                 userNameView.setText("")
                 passwordView.setText("")
             }
@@ -54,34 +55,111 @@ class LoginActivity: Activity() {
             }
         } else {
             setContentView(R.layout.user_page)
+            setToolbar()
+
             addTour = findViewById(R.id.editBut)
             addTour.setOnClickListener {
                 val tmpIntent = Intent(this, EditActivity::class.java)
                 startActivity(tmpIntent)
             }
 
-            mAdapter = FavorateListAdapter(applicationContext)
             mName = findViewById(R.id.userName)
+            val regex = "@".toRegex()
+            mName.text = regex.split(mAuth.currentUser!!.email!!)[0]
+
+            mAdapter = FavorateListAdapter(applicationContext)
             mFavorateList = findViewById(R.id.favorateListView)
             mFavorateList.adapter = mAdapter
 
 
-            mFavorateList.onItemClickListener = AdapterView.OnItemClickListener{ adapterView, view, i, l ->
+            mFavorateList.onItemClickListener = AdapterView.OnItemClickListener{ _, _, i, _ ->
                 val tour = mAdapter.getItem(i)
                 val tmpIntent = Intent(this, TourDetailActivity::class.java)
-                tmpIntent.putExtra(TOUR_ID, tour)
+                tour.packageIntent(tmpIntent)
+                tmpIntent.putExtra(TOUR_ID, mAdapter.getTourId(i))
                 startActivity(tmpIntent)
             }
+
+            signOut = findViewById(R.id.signOutBut)
+            signOut.setOnClickListener {
+                mAuth.signOut()
+                recreate()
+            }
+
+            user = FirebaseDatabase.getInstance().getReference("users")
         }
+    }
 
+    override fun onStart() {
+        super.onStart()
 
+        if (mAuth.currentUser != null) {
+            user.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    mAdapter.clear()
+
+                    var tour: Tour? = null
+                    for (postSnapshot in dataSnapshot.child(mAuth.currentUser!!.uid)
+                        .children) {
+                        try {
+                            tour = postSnapshot.getValue(Tour::class.java)
+                        } catch (e: Exception) {
+                            Log.e(TAG, e.toString())
+                        } finally {
+                            mAdapter.add(tour!!, postSnapshot.key!!)
+                        }
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                }
+            })
+
+//            FirebaseDatabase.getInstance().getReference("tours")
+//                .addValueEventListener(object : ValueEventListener {
+//                override fun onDataChange(dataSnapshot: DataSnapshot) {
+//                    mAdapter.clear()
+//
+//                    var tour: Tour? = null
+//                    var name: String?
+//                    var description: String?
+//                    var author: String?
+//                    val locations = ArrayList<Bundle>()
+//                    var location: Location?
+//                    for (postSnapshot in dataSnapshot.children) {
+//                        if (postSnapshot.key in tours) {
+//                            try {
+//                                name = postSnapshot.child(NAME).getValue(String::class.java)
+//                                description = postSnapshot.child(DES).getValue(String::class.java)
+//                                author = postSnapshot.child(AUTHOR).getValue(String::class.java)
+//                                for (loc in postSnapshot.child(LOCATIONS).children) {
+//                                    location = loc.getValue(Location::class.java)
+//                                    locations.add(location!!.packageBundle())
+//                                }
+//                                tour = Tour(locations, name!!, description!!, author!!)
+//                            } catch (e: Exception) {
+//                                Log.e(TAG, e.toString())
+//                            } finally {
+//                                mAdapter.add(tour!!)
+//                            }
+//                        }
+//
+//                    }
+//
+//                }
+//
+//                override fun onCancelled(databaseError: DatabaseError) {
+//
+//                }
+//            })
+        }
     }
 
     private fun setToolbar() {
         // ToolBar and Menu
-        toolBar = findViewById(R.id.toolbar) as Toolbar
+        toolBar = findViewById(R.id.toolbar)
         toolBar.setTitle(R.string.app_name)
-        toolBar.setSubtitle("User")
+        toolBar.subtitle = "User"
         toolBar.inflateMenu(R.menu.switch_activities)
         toolBar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -110,9 +188,9 @@ class LoginActivity: Activity() {
 
     private fun loginUserAccount() {
 
-        val email: String = userNameView.text.toString()
-        val password: String = passwordView.text.toString()
-        var validator = Validators()
+        val email = userNameView.text.toString()
+        val password = passwordView.text.toString()
+        val validator = Validators()
 
         if (!validator.validEmail(email)) {
             Toast.makeText(applicationContext, "Please enter a valid email...",
@@ -138,8 +216,10 @@ class LoginActivity: Activity() {
 
     companion object {
 
-        private val REGISTER_REQUEST = 0
-        private val TOUR_ID = "TOUR_ID"
+        private const val REGISTER_REQUEST = 0
+        private const val TOUR_ID = "TOUR_ID"
+
+        private const val TAG = "Semester-Project"
 
     }
 }

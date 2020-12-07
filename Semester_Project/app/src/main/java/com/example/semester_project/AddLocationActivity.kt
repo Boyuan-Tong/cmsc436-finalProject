@@ -2,12 +2,14 @@ package com.example.semester_project
 
 import android.app.*
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.view.Menu
 import android.view.View
 import android.widget.*
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.util.*
@@ -21,9 +23,9 @@ class AddLocationActivity: Activity() {
     private lateinit var mImage1: ImageView
     private lateinit var mImage2: ImageView
     private lateinit var mImage3: ImageView
-    lateinit var nameView: EditText
-    lateinit var addressView: EditText
-    lateinit var descView: EditText
+    private lateinit var nameView: EditText
+    private lateinit var addressView: EditText
+    private lateinit var descView: EditText
     private val images = ArrayList<String>()
 
 
@@ -48,53 +50,118 @@ class AddLocationActivity: Activity() {
         mAddImage2 = findViewById(R.id.addImageBut2)
         mAddImage3 = findViewById(R.id.addImageBut3)
 
-        mAddImage1.setOnClickListener {
-            val tmpIntent = Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            )
-            startActivityForResult(tmpIntent, IMAGE_REQUEST)
-        }
-        mAddImage2.setOnClickListener {
-            val tmpIntent = Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            )
-            startActivityForResult(tmpIntent, IMAGE_REQUEST)
-        }
-        mAddImage3.setOnClickListener {
-            val tmpIntent = Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            )
-            startActivityForResult(tmpIntent, IMAGE_REQUEST)
-        }
+        mAddImage1.setOnClickListener { requestImage(IMAGE_REQUEST_1) }
+        mAddImage2.setOnClickListener { requestImage(IMAGE_REQUEST_2) }
+        mAddImage3.setOnClickListener { requestImage(IMAGE_REQUEST_3) }
 
-
-
-        // TODO: (DATABASE) implement submitButton logic
         val submitButton = findViewById<View>(R.id.submitLoactionBut) as Button
-        submitButton.setOnClickListener {
-            val name = nameView.text as String
-            val address = addressView.text as String
-            val description = descView.text as String
-            val tmpIntent = Intent()
+        submitButton.setOnClickListener { submit() }
 
-            setResult(RESULT_OK, tmpIntent)
-            finish()
+        if (intent.getIntExtra(NUMBER, -1) != -1) {
+            setUI()
         }
+    }
+
+    private fun setUI() {
+        nameView.setText(intent.getStringExtra(NAME))
+        addressView.setText(intent.getStringExtra(LOCATION_ADDRESS))
+        descView.setText(intent.getStringExtra(DESCRIPTION))
+        val photos = intent.getStringArrayExtra(IMAGES)
+        if (photos != null)
+            for (i in photos.indices) {
+                images.add(photos[i])
+                when (i) {
+                    0 -> mImage1.setImageURI(Uri.fromFile(File(photos[0])))
+                    1 -> mImage2.setImageURI(Uri.fromFile(File(photos[1])))
+                    2 -> mImage3.setImageURI(Uri.fromFile(File(photos[2])))
+                }
+            }
+    }
+
+    private fun submit() {
+        val name = nameView.text.toString()
+        val address = addressView.text.toString()
+        val description = descView.text.toString()
+        val tmpIntent = Intent()
+        tmpIntent.putExtra(NAME, name)
+        tmpIntent.putExtra(LOCATION_ADDRESS, address)
+        tmpIntent.putExtra(DESCRIPTION, description)
+        while ("" in images)
+            images.remove("")
+        tmpIntent.putExtra(IMAGES, images)
+
+        setResult(RESULT_OK, tmpIntent)
+        finish()
+    }
+
+    private fun requestImage(requestCode: Int) {
+        val tmpIntent = Intent(
+            Intent.ACTION_PICK,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        )
+        startActivityForResult(tmpIntent, requestCode)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         Log.i(TAG, "Entered onActivityResult()")
 
-        if (requestCode == IMAGE_REQUEST && resultCode == RESULT_OK) {
+        if (requestCode == IMAGE_REQUEST_1 && resultCode == RESULT_OK) {
             val selectedImage = data?.let { it.data }
             if (selectedImage != null) {
                 try {
-                    images.add(selectedImage.path!!)
-                    mImage1.text = selectedImage.lastPathSegment
+                    if (images.size == 0)
+                        images.add(selectedImage.path!!)
+                    else
+                        images[0] = selectedImage.path!!
+                    mImage1.setImageURI(selectedImage)
+                } catch (e: FileNotFoundException) {
+                    e.printStackTrace()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        if (requestCode == IMAGE_REQUEST_2 && resultCode == RESULT_OK) {
+            val selectedImage = data?.let { it.data }
+            if (selectedImage != null) {
+                try {
+                    when(images.size) {
+                        0 -> {
+                            images.add("")
+                            images.add(selectedImage.path!!)
+                        }
+                        1 -> images.add(selectedImage.path!!)
+                        else -> images[1] = selectedImage.path!!
+                    }
+                    mImage2.setImageURI(selectedImage)
+                } catch (e: FileNotFoundException) {
+                    e.printStackTrace()
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        }
+
+        if (requestCode == IMAGE_REQUEST_3 && resultCode == RESULT_OK) {
+            val selectedImage = data?.let { it.data }
+            if (selectedImage != null) {
+                try {
+                    when(images.size) {
+                        0 -> {
+                            images.add("")
+                            images.add("")
+                            images.add(selectedImage.path!!)
+                        }
+                        1 -> {
+                            images.add("")
+                            images.add(selectedImage.path!!)
+                        }
+                        2 -> images.add(selectedImage.path!!)
+                        3 -> images[2] = selectedImage.path!!
+                    }
+                    mImage3.setImageURI(selectedImage)
                 } catch (e: FileNotFoundException) {
                     e.printStackTrace()
                 } catch (e: IOException) {
@@ -108,15 +175,15 @@ class AddLocationActivity: Activity() {
 
     companion object {
 
-        private val LOCATION_ADDRESS = "LOCATION_ADDRESS"
-        private val IMAGES = "IMAGES"
-        private val DESCRIPTION = "DESCRIPTION"
-        private val NUMBER = "NUMBER"
-        private val IMAGE_REQUEST = 0
-        private val TAG = "Semester-Project"
+        private const val LOCATION_ADDRESS = "LOCATION_ADDRESS"
+        private const val IMAGES = "IMAGES"
+        private const val DESCRIPTION = "DESCRIPTION"
+        private const val NAME = "NAME"
+        private const val NUMBER = "NUMBER"
+        private const val IMAGE_REQUEST_1 = 0
+        private const val IMAGE_REQUEST_2 = 1
+        private const val IMAGE_REQUEST_3 = 2
+        private const val TAG = "Semester-Project"
 
-        // IDs for menu items
-        private val MENU_DELETE = Menu.FIRST
-        private val MENU_DUMP = Menu.FIRST + 1
     }
 }
