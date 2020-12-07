@@ -10,6 +10,7 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -24,6 +25,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
+import kotlinx.android.synthetic.main.mapslayout.*
+import java.lang.IndexOutOfBoundsException
 
 
 class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListener {
@@ -41,6 +44,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.mapslayout)
+
 
         toolBar = findViewById(R.id.toolbar)
         toolBar.inflateMenu(R.menu.switch_activities)
@@ -65,7 +69,10 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+       mapFragment.getMapAsync(this)
+
+
+        Log.i(TAG, "Load Map")
 
         mFused = LocationServices.getFusedLocationProviderClient(this)
 
@@ -76,30 +83,6 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         locationArray = intent.getStringArrayListExtra(LOCATIONS)!!
         namesArray = intent.getStringArrayListExtra(NAMES)!!
         descriptionArray = intent.getStringArrayListExtra(DESCRIPTIONS)!!
-
-
-        var position = 0
-
-        for (element in locationArray) {
-
-            if(goToLocationFromAddress(element).longitude == 0.0 && goToLocationFromAddress(element).longitude == 0.0){
-
-                Toast.makeText(this, "Not A Valid Address", Toast.LENGTH_SHORT).show()
-
-            } else {
-
-                addMarker(
-                    mMap,
-                    goToLocationFromAddress(element),
-                    namesArray[position],
-                    descriptionArray[position]
-                )
-
-            }
-
-            position += 1
-
-        }
 
 
     }
@@ -115,7 +98,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
      * installed Google Play services and returned to the app.
      */
     override fun onMapReady(googleMap: GoogleMap) {
-        mMap = googleMap
+        this.mMap = googleMap
         mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
         val options = GoogleMapOptions()
 
@@ -132,8 +115,29 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
 
 
         setUpMap()
-        var pos = LatLng(38.9881, -76.9426)
-        addMarker(googleMap, pos, "Hornbake Plaza", "This is a library")
+      
+        var position = 0
+
+        for (element in locationArray) {
+
+            if(goToLocationFromAddress(element).longitude == 0.0 && goToLocationFromAddress(element).longitude == 0.0){
+
+                Toast.makeText(this, "Not A Valid Address", Toast.LENGTH_SHORT).show()
+
+            } else {
+
+                addMarker(
+                    googleMap,
+                    goToLocationFromAddress(element),
+                    namesArray[position],
+                    descriptionArray[position]
+                )
+
+            }
+
+            position += 1
+
+        }
 
 
     }
@@ -223,19 +227,25 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         address = coder.getFromLocationName(strAddress, 5)
 
         //check for null
-        if (address != null) {
+        if (address != null ) {
 
             //Lets take first possibility from the all possibilities.
 
-            val location = address[0]
-             latLng =
-                LatLng(
-                    location.latitude,
-                    location.longitude
-                )
+            try {
 
 
-            return latLng
+                val location = address[0]
+                latLng =
+                    LatLng(
+                        location.latitude,
+                        location.longitude
+                    )
+
+
+                return latLng
+            } catch (e: IndexOutOfBoundsException){
+                Toast.makeText(this, "Not A Valid Address", Toast.LENGTH_SHORT).show()
+            }
 
         }
 
@@ -252,6 +262,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         private const val LOCATIONS = "LOCATIONS"
         private const val NAMES = "NAMES"
         private const val DESCRIPTIONS = "DESCRIPTIONSS"
+        private const val TAG = "FinalProject"
 
     }
 
