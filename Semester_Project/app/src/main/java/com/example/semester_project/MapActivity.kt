@@ -114,8 +114,12 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         mMap.uiSettings.isCompassEnabled = true
 
 
+
         setUpMap()
-      
+
+        if (intent.getStringArrayListExtra(LOCATIONS) == null)
+            return
+
         var position = 0
 
         for (element in locationArray) {
@@ -192,7 +196,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
                 )
             )
         )
-        mark.showInfoWindow()
+        //mark.showInfoWindow()
     }
 
 
