@@ -1,24 +1,25 @@
 package com.example.semester_project
 
-import android.app.Activity
+
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-
-
 import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.TypeFilter
 import com.google.android.libraries.places.api.net.PlacesClient
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener
@@ -49,7 +50,8 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
 
         Places.initialize(applicationContext, "AIzaSyAWzjlC_CvMvp-IN1r14WJTgVZQ_G6ojRw")
 
-        mPlace = Places.createClient(this)
+
+      /* mPlace = Places.createClient(this)
 
         mComplete = supportFragmentManager.findFragmentById(R.id.autocomplete_fragment) as AutocompleteSupportFragment
 
@@ -71,7 +73,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
             }
 
 
-        })
+        }) */
 
 
     }
@@ -129,6 +131,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
     }
 
     private fun setUpMap() {
+
         if (ActivityCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
@@ -143,7 +146,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
             if (location != null) {
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
-                placeMarkerOnMap(currentLatLng)
+                //placeMarkerOnMap(currentLatLng)
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
             }
         }
@@ -162,15 +165,29 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
 
         mMap = googleMap
 
+
+
         val mark = mMap.addMarker(
             MarkerOptions().position(position).snippet(title).title(data).icon(
-                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)))
+            bitmapDescriptorFromVector(applicationContext, R.drawable.ic_baseline_emoji_flags_24)))
         mark.showInfoWindow()
-
     }
+
+
+    private fun  bitmapDescriptorFromVector(context: Context, vectorResId:Int):BitmapDescriptor {
+        var vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+        vectorDrawable!!.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+        var bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        var canvas =  Canvas(bitmap);
+        vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
+
     }
+
 
 }
