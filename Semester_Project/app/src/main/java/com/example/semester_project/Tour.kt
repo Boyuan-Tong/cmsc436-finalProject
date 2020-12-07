@@ -1,11 +1,9 @@
 package com.example.semester_project
 
 import android.content.Intent
-import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
 
 
-data class Tour(val name: String, val description: String, val author: String) {
+class Tour(val name: String = "", val description: String = "", val author: String = "") {
 
     fun packageIntent(intent: Intent) {
         intent.putExtra(NAME, name)

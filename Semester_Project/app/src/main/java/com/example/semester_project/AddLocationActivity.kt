@@ -54,6 +54,10 @@ class AddLocationActivity: Activity() {
         mAddImage2.setOnClickListener { requestImage(IMAGE_REQUEST_2) }
         mAddImage3.setOnClickListener { requestImage(IMAGE_REQUEST_3) }
 
+        mImage1 = findViewById(R.id.image1)
+        mImage2 = findViewById(R.id.image2)
+        mImage3 = findViewById(R.id.image3)
+
         val submitButton = findViewById<View>(R.id.submitLoactionBut) as Button
         submitButton.setOnClickListener { submit() }
 
@@ -66,7 +70,7 @@ class AddLocationActivity: Activity() {
         nameView.setText(intent.getStringExtra(NAME))
         addressView.setText(intent.getStringExtra(LOCATION_ADDRESS))
         descView.setText(intent.getStringExtra(DESCRIPTION))
-        val photos = intent.getStringArrayExtra(IMAGES)
+        val photos = intent.getStringArrayListExtra(IMAGES)
         if (photos != null)
             for (i in photos.indices) {
                 images.add(photos[i])
@@ -82,6 +86,22 @@ class AddLocationActivity: Activity() {
         val name = nameView.text.toString()
         val address = addressView.text.toString()
         val description = descView.text.toString()
+        if (name.isNullOrEmpty()) {
+            Toast.makeText(this, "Please Enter Location Name", Toast.LENGTH_LONG)
+                .show()
+            return
+        }
+        if (address.isNullOrEmpty()) {
+            Toast.makeText(this, "Please Enter Location Address", Toast.LENGTH_LONG)
+                .show()
+            return
+        }
+        if (description.isNullOrEmpty()) {
+            Toast.makeText(this, "Please Enter Location Description",
+                Toast.LENGTH_LONG).show()
+            return
+        }
+
         val tmpIntent = Intent()
         tmpIntent.putExtra(NAME, name)
         tmpIntent.putExtra(LOCATION_ADDRESS, address)
@@ -91,6 +111,7 @@ class AddLocationActivity: Activity() {
         tmpIntent.putExtra(IMAGES, images)
 
         setResult(RESULT_OK, tmpIntent)
+        Log.i(TAG, name + address + description)
         finish()
     }
 

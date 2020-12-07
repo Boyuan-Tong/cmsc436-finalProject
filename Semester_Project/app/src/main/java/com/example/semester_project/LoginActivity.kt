@@ -31,6 +31,7 @@ class LoginActivity: Activity() {
         super.onCreate(savedInstanceState)
 
         mAuth = FirebaseAuth.getInstance()
+        Log.i(TAG, (mAuth.currentUser == null).toString())
         if (mAuth.currentUser == null) {
             setContentView(R.layout.login_page)
 
@@ -63,7 +64,7 @@ class LoginActivity: Activity() {
                 startActivity(tmpIntent)
             }
 
-            mName = findViewById(R.id.userName)
+            mName = findViewById(R.id.userNameText)
             val regex = "@".toRegex()
             mName.text = regex.split(mAuth.currentUser!!.email!!)[0]
 

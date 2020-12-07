@@ -35,21 +35,21 @@ class EditActivity : Activity() {
         mAdapter = LocationListAdapter(applicationContext, "")
 
         mLocationList.setFooterDividersEnabled(true)
-        val footerView = LayoutInflater.from(this).inflate(
-            R.layout.footer_view,
-            null, false
-        )
+        val footerView = LayoutInflater.from(this).inflate(R.layout.footer_view,
+            null, false)
+
+        mLocationList.addFooterView(footerView)
+
         footerView.setOnClickListener {
             val tmpIntent = Intent(this, AddLocationActivity::class.java)
             startActivityForResult(tmpIntent, ADD_LOCATION_REQUEST)
         }
-        mLocationList.addFooterView(footerView)
 
         mLocationList.setOnItemClickListener { _, _, position, _ ->
             val tmpIntent = Intent(this, AddLocationActivity::class.java)
             mAdapter.getItem(position).packageIntent(tmpIntent)
             tmpIntent.putExtra(NUMBER, position)
-            startActivityForResult(tmpIntent, position)
+            startActivityForResult(tmpIntent, position + 1)
         }
 
         mLocationList.adapter = mAdapter
@@ -135,17 +135,19 @@ class EditActivity : Activity() {
 
         Log.i(TAG, "Entered onActivityResult()")
 
+        Log.i(TAG, "$resultCode  $RESULT_OK  $requestCode  $ADD_LOCATION_REQUEST")
         if (requestCode == ADD_LOCATION_REQUEST && resultCode == RESULT_OK) {
             var location = data?.let { Location(it) }
+            Log.i(TAG, (location == null).toString())
             if (location != null) {
-                mAdapter.addLocation(location, "")
+                mAdapter.add(location, "")
             }
         }
 
         if (requestCode != ADD_LOCATION_REQUEST && resultCode == RESULT_OK) {
             var location = data?.let { Location(it) }
             if (location != null) {
-                mAdapter.adjust(location, requestCode)
+                mAdapter.adjust(location, requestCode - 1)
             }
         }
 
@@ -188,7 +190,7 @@ class EditActivity : Activity() {
                     images.add(reader.readLine())
                 }
                 description = reader.readLine()
-                mAdapter.addLocation(Location(name, address, description, images), "")
+                mAdapter.add(Location(name, address, description, images), "")
 
             } while (true)
 
@@ -229,7 +231,7 @@ class EditActivity : Activity() {
 
     companion object {
 
-        private const val ADD_LOCATION_REQUEST = -1
+        private const val ADD_LOCATION_REQUEST = 0
         private const val NUMBER = "NUMBER"
         private const val FILE_NAME = "AddTourActivityData.txt"
         private const val TAG = "Semester-Project"

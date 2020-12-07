@@ -42,11 +42,18 @@ class TourDetailActivity : Activity() {
         adapter = LocationListAdapter(applicationContext, intent.getStringExtra(TOUR_ID)!!)
         listView.adapter = adapter
 
+        listView.setOnItemClickListener { parent, view, position, id ->
+            val location = adapter.getItem(position)
+            val tmpIntent = Intent(this, LocationDetailActivity::class.java)
+            location.packageIntent(tmpIntent)
+            tmpIntent.putExtra(LOCATION_ID, adapter.getLocationId(position))
+            startActivity(tmpIntent)
+        }
+
         //Show Tour in Map Button
         val showTourBut = findViewById<Button>(R.id.showTourBut)
         showTourBut.setOnClickListener {
             val intent = Intent(this, MapActivity::class.java)
-
             intent.putExtra(LOCATIONS, adapter.getLocations())
             intent.putExtra(NAMES, adapter.getNames())
             intent.putExtra(DESCRIPTIONS, adapter.getDescriptions())
@@ -62,16 +69,22 @@ class TourDetailActivity : Activity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 adapter.clear()
 
-                var tour: Location? = null
+                var location: Location? = null
+                var name: String?
+                var address: String?
+                var description: String?
                 for (postSnapshot in dataSnapshot.child(adapter.getTourId())
                     .children) {
                     try {
-                        // TODO
-                        tour = postSnapshot.getValue(Location::class.java)
+                        name = postSnapshot.child("name").getValue(String::class.java)
+                        address = postSnapshot.child("address").getValue(String::class.java)
+                        description = postSnapshot.child("description")
+                            .getValue(String::class.java)
+                        location = Location(name!!, address!!, description!!)
                     } catch (e: Exception) {
                         Log.e(TAG, e.toString())
                     } finally {
-                        adapter.add(tour!!, postSnapshot.key!!)
+                        adapter.add(location!!, postSnapshot.key!!)
                     }
                 }
             }
@@ -89,6 +102,7 @@ class TourDetailActivity : Activity() {
         private const val NAMES = "NAMES"
         private const val DESCRIPTIONS = "DESCRIPTIONSS"
         private const val TOUR_ID = "TOUR_ID"
+        private const val LOCATION_ID = "LOCATION_ID"
         private const val AUTHOR = "AUTHOR"
         private const val DESCRIPTION = "DESCRIPTION"
         private const val NAME = "NAME"

@@ -3,47 +3,88 @@ package com.example.semester_project
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.component1
+import com.google.firebase.storage.ktx.component2
+import java.io.File
 
 class LocationDetailActivity: Activity() {
+    private lateinit var nameView: TextView
+    private lateinit var addressView: TextView
+    private lateinit var descView: TextView
+    private lateinit var imageRecyclerView: RecyclerView
+    private lateinit var mAdapter: LocationImageAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.location_detail)
-        val intent = intent
-        val locationBundle = intent.getBundleExtra("locationBundle")
-        val nameView = findViewById<TextView>(R.id.locationName)
-        val addressView = findViewById<TextView>(R.id.locationAddress)
-        val descView = findViewById<TextView>(R.id.locationDesc)
-        nameView.text = locationBundle!!.getString(NAME)
-        addressView.text = locationBundle!!.getString(LOCATION_ADDRESS)
-        descView.text = locationBundle!!.getString(DESCRIPTION)
-        val images = locationBundle.getStringArrayList(IMAGES)
+        nameView = findViewById(R.id.locationName)
+        addressView = findViewById(R.id.locationAddress)
+        descView = findViewById(R.id.locationDesc)
+
+        nameView.text = intent.getStringExtra(NAME)
+        addressView.text = intent.getStringExtra(LOCATION_ADDRESS)
+        descView.text = intent.getStringExtra(DESCRIPTION)
 
         //Set RecycleView for images
-        val imageRecycleView = findViewById<RecyclerView>(R.id.locationImageRecycleView)
-        val layoutManager = LinearLayoutManager(this)
+        imageRecyclerView = findViewById(R.id.locationImageRecycleView)
+        val layoutManager = LinearLayoutManager(applicationContext)
         layoutManager.orientation = LinearLayoutManager.HORIZONTAL
-        imageRecycleView.layoutManager = layoutManager
-        imageRecycleView.adapter = LocationImageAdapter(images!!,this)
+        imageRecyclerView.layoutManager = layoutManager
+        mAdapter = LocationImageAdapter(applicationContext)
+        imageRecyclerView.adapter = mAdapter
 
         //Set show location on map button
         val showBut = findViewById<Button>(R.id.showLocationBut)
-        showBut.setOnClickListener{v ->
+        showBut.setOnClickListener{
             val intent = Intent(this, MapActivity::class.java)
-            intent.putExtra("LocationBundle", locationBundle)
+            val nameArray = ArrayList<String>()
+            nameArray.add(intent.getStringExtra(NAME)!!)
+            intent.putExtra(NAMES, nameArray)
+            val locArray = ArrayList<String>()
+            locArray.add(intent.getStringExtra(LOCATION_ADDRESS)!!)
+            intent.putExtra(LOCATIONS, locArray)
+            val descArray = ArrayList<String>()
+            descArray.add(intent.getStringExtra(DESCRIPTION)!!)
+            intent.putExtra(DESCRIPTIONS, descArray)
             startActivity(intent)
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        val imageReference = FirebaseStorage.getInstance()
+        .getReference("locations").child(intent.getStringExtra(LOCATION_ID)!!)
+        imageReference.listAll()
+            .addOnSuccessListener { (items, _) ->
+                items.forEach { item ->
+                    item.downloadUrl.addOnCompleteListener {
+                        mAdapter.add(it.result)
+                    }
+                }
+            }.addOnFailureListener {
+                Log.e(TAG, it.toString())
+            }
+    }
+
+
+
 
     companion object {
         private const val LOCATION_ADDRESS = "LOCATION_ADDRESS"
         private const val IMAGES = "IMAGES"
         private const val DESCRIPTION = "DESCRIPTION"
         private const val NAME = "NAME"
+        private const val LOCATION_ID = "LOCATION_ID"
+        private const val LOCATIONS = "LOCATIONS"
+        private const val NAMES = "NAMES"
+        private const val DESCRIPTIONS = "DESCRIPTIONSS"
+        private const val TAG = "Semester-Project"
 
     }
 }

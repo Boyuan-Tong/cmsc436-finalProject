@@ -1,11 +1,10 @@
 package com.example.semester_project
 
 import android.content.Intent
-import android.os.Bundle
 
 class Location {
     var address: String
-    val images = ArrayList<String>() // TODO
+    val images = ArrayList<String>()
     var description: String
     var name: String
 
@@ -44,16 +43,6 @@ class Location {
         intent.putExtra(LOCATION_ADDRESS, address)
         intent.putExtra(IMAGES, images)
         intent.putExtra(DESCRIPTION, description)
-    }
-
-
-    fun packageBundle(): Bundle{
-        val bundle = Bundle()
-        bundle.putString(LOCATION_ADDRESS, address)
-        bundle.putString(NAME, name)
-        bundle.putString(DESCRIPTION, description)
-        bundle.putStringArrayList(IMAGES, images)
-        return bundle
     }
 
     companion object {

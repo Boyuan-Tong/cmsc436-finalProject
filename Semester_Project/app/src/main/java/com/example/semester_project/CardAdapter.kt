@@ -16,8 +16,21 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.semester_project.Location
 import java.io.File
 
-class CardAdapter(tours: List<Tour>, val context: Context) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
-    private val myTours = tours
+class CardAdapter(val context: Context) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
+    private val mTours = ArrayList<Tour>()
+    private val tourId = ArrayList<String>()
+
+    fun add(tour: Tour, id: String) {
+        mTours.add(tour)
+        tourId.add(id)
+        notifyDataSetChanged()
+    }
+
+    fun clear() {
+        mTours.clear()
+        tourId.clear()
+        notifyDataSetChanged()
+    }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
         val imgView = itemView.findViewById<ImageView>(R.id.tour_image)
@@ -36,25 +49,26 @@ class CardAdapter(tours: List<Tour>, val context: Context) : RecyclerView.Adapte
     }
 
     override fun getItemCount(): Int {
-        return myTours.size
+        return mTours.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val location = myTours[position].locations
+//        // TODO: Delete with layout OR change
+//        //Use the first Image from frist location as Title Image
+//        val location = mTours[position].locations
+//        val images = location[0].getStringArrayList(IMAGES)
+//        holder.imgView.setImageBitmap(BitmapFactory.decodeFile(images?.get(0)))
+//        //
 
-        // TODO
-        //Use the first Image from frist location as Title Image
-        val images = location[0].getStringArrayList(IMAGES)
-        holder.imgView.setImageBitmap(BitmapFactory.decodeFile(images?.get(0)))
+        holder.titleView.text = mTours[position].name
+        holder.descriptionView.text = mTours[position].description
+        holder.authorView.text = mTours[position].author
 
-        holder.titleView.text = myTours[position].name
-        holder.descriptionView.text = myTours[position].description
-        holder.authorView.text = myTours[position].author
-
-        holder.cardView.setOnClickListener { v ->
-            val intent = Intent(context, TourDetailActivity::class.java)
-            intent.putExtra(TOUR_ID, myTours[position] as Parcelable)
-            context.startActivity(intent)
+        holder.cardView.setOnClickListener {
+            val tmpIntent = Intent(context, TourDetailActivity::class.java)
+            mTours[position].packageIntent(tmpIntent)
+            tmpIntent.putExtra(TOUR_ID, tourId[position])
+            context.startActivity(tmpIntent)
         }
 
     }
