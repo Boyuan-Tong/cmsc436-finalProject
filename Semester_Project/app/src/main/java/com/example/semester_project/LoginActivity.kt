@@ -89,13 +89,7 @@ class LoginActivity: Activity() {
             }
 
             user = FirebaseDatabase.getInstance().getReference("users")
-        }
-    }
 
-    override fun onStart() {
-        super.onStart()
-
-        if (mAuth.currentUser != null) {
             user.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     mAdapter.clear()
