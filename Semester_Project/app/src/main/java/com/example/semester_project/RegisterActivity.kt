@@ -30,6 +30,7 @@ class RegisterActivity:Activity(){
             passwordView.setText("")
             emailView.setText("")
         }
+        mAuth = FirebaseAuth.getInstance()
     }
 
     private fun registerNewUser() {
