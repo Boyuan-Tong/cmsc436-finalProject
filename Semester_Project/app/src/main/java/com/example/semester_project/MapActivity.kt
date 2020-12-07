@@ -67,9 +67,12 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback, PlaceSelectionListen
         mapFragment.getMapAsync(this)
 
         // Get the string array list intents from Tour detail activity
-        locationArray = intent.getStringArrayExtra(LOCATIONS) as ArrayList<String>
-        namesArray = intent.getStringArrayListExtra(NAMES) as ArrayList<String>
-        descriptionArray = intent.getStringArrayListExtra(DESCRIPTIONS) as ArrayList<String>
+        if (intent.getStringArrayListExtra(LOCATIONS) == null)
+            return
+
+        locationArray = intent.getStringArrayListExtra(LOCATIONS)!!
+        namesArray = intent.getStringArrayListExtra(NAMES)!!
+        descriptionArray = intent.getStringArrayListExtra(DESCRIPTIONS)!!
 
 
         var position = 0
