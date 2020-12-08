@@ -44,17 +44,17 @@ class LocationDetailActivity: Activity() {
         //Set show location on map button
         val showBut = findViewById<Button>(R.id.showLocationBut)
         showBut.setOnClickListener{
-            val intent = Intent(this, MapActivity::class.java)
+            val tmpIntent = Intent(this, MapActivity::class.java)
             val nameArray = ArrayList<String>()
             nameArray.add(intent.getStringExtra(NAME)!!)
-            intent.putExtra(NAMES, nameArray)
+            tmpIntent.putExtra(NAMES, nameArray)
             val locArray = ArrayList<String>()
             locArray.add(intent.getStringExtra(LOCATION_ADDRESS)!!)
-            intent.putExtra(LOCATIONS, locArray)
+            tmpIntent.putExtra(LOCATIONS, locArray)
             val descArray = ArrayList<String>()
             descArray.add(intent.getStringExtra(DESCRIPTION)!!)
-            intent.putExtra(DESCRIPTIONS, descArray)
-            startActivity(intent)
+            tmpIntent.putExtra(DESCRIPTIONS, descArray)
+            startActivity(tmpIntent)
         }
     }
 
