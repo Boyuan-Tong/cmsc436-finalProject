@@ -67,12 +67,8 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback {
         }
 
         // Obtain the SupportMapFragment and Launch Map
-        val mapFragment = supportFragmentManager
-            .findFragmentById(R.id.map) as SupportMapFragment
-       mapFragment.getMapAsync(this)
-
-
-        Log.i(TAG, "Load Map")
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         // Get Location Provider Client
         mFused = LocationServices.getFusedLocationProviderClient(this)
@@ -105,18 +101,20 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback {
 
         // Enable Google Map UI Options and Functions
         mMap.uiSettings.isZoomControlsEnabled = true
-        if (ActivityCompat.checkSelfPermission(
-                applicationContext!!,
+
+        if (ActivityCompat.checkSelfPermission(applicationContext!!,
                 android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+                ) == PackageManager.PERMISSION_GRANTED
         ) {
+
             mMap.uiSettings.isMyLocationButtonEnabled = true
+
         }
+
         mMap.uiSettings.isMapToolbarEnabled = true
         mMap.uiSettings.isCompassEnabled = true
 
-
-        setUpMap()
+        configureMap()
         mMap.setInfoWindowAdapter(CustomInfoWindowAdapter(applicationContext))
 
         // Add Locations from Tour Detail Activity into the Map
@@ -134,10 +132,7 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback {
             } else {
 
                 // Add the marker at specified location with description and title
-                addMarker(
-                    googleMap,
-                    addressToLatLng(element),
-                    namesArray[position],
+                addMarker(googleMap, addressToLatLng(element), namesArray[position],
                     descriptionArray[position]
                 )
 
@@ -151,13 +146,12 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    private fun setUpMap() {
+    private fun configureMap() {
 
         // Check Self Permissions for getting Location
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission
+                (this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 this,
@@ -171,12 +165,13 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback {
 
         // Move camera towards current location
         mFused.lastLocation.addOnSuccessListener(this) { location ->
-            // Got last known location. In some rare situations this can be null.
+            // Got last known location
             if (location != null) {
+
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
-                //placeMarkerOnMap(currentLatLng)
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
+
             }
         }
     }
@@ -198,51 +193,37 @@ class MapActivity: AppCompatActivity(), OnMapReadyCallback {
 
     }
 
-    // Kotlin converted code that turns a Vector Asset into Bitmap for marker icon - from Stack Overflow
+    // Kotlin converted code that turns a Vector Asset into Bitmap for marker icon - general outline from Stack Overflow
     private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int): BitmapDescriptor {
-        var vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
-        vectorDrawable!!.setBounds(
-            0,
-            0,
-            vectorDrawable.getIntrinsicWidth(),
-            vectorDrawable.getIntrinsicHeight()
-        );
-        var bitmap = Bitmap.createBitmap(
-            vectorDrawable.getIntrinsicWidth(),
-            vectorDrawable.getIntrinsicHeight(),
-            Bitmap.Config.ARGB_8888
-        );
-        var canvas = Canvas(bitmap);
-        vectorDrawable.draw(canvas);
-        return BitmapDescriptorFactory.fromBitmap(bitmap);
+
+        var drawVector = ContextCompat.getDrawable(context, vectorResId);
+        drawVector!!.setBounds(0, 0, drawVector.getIntrinsicWidth(), drawVector.getIntrinsicHeight())
+
+        var bitMap = Bitmap.createBitmap(drawVector.getIntrinsicWidth(), drawVector.getIntrinsicHeight(), Bitmap.Config.ARGB_8888)
+        var canvas = Canvas(bitMap)
+
+        drawVector.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bitMap)
     }
 
-    // Converts address string to latitude and longitude coordinates - Code from StackOverflow
+    // Converts address string to latitude and longitude coordinates - Code outline from StackOverflow - Converted to Kotlin
     private fun addressToLatLng(strAddress: String?): LatLng {
         // Get Reference to Geocoder - converts address to Lat and Lng
-        val coder = Geocoder(this)
+        val code = Geocoder(this)
         val address: List<Address>?
         val latLng: LatLng
         val emptyLatLng = LatLng(0.0, 0.0)
 
-
         //Get latLng from Address String
-        address = coder.getFromLocationName(strAddress, 5)
+        address = code.getFromLocationName(strAddress, 5)
 
         //check that address returned something
         if (address != null ) {
 
-
-
             try {
-
                 // Grab the first most likely location and convert to LatLng
                 val location = address[0]
-                latLng =
-                    LatLng(
-                        location.latitude,
-                        location.longitude
-                    )
+                latLng = LatLng(location.latitude, location.longitude)
 
                 return latLng
 
