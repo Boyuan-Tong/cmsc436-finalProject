@@ -16,6 +16,8 @@ import com.google.firebase.storage.UploadTask
 import java.io.*
 import java.text.ParseException
 
+
+// Edit a new tour by a user
 class EditActivity : Activity() {
 
     private lateinit var mAdapter: LocationListAdapter
@@ -63,6 +65,8 @@ class EditActivity : Activity() {
 
     }
 
+
+    // submit the the Tour to firebaseDatabase and FirebaseStorage
     private fun submitNewTour() {
         if (mTourName.text.isNullOrEmpty()) {
             Toast.makeText(this, "Please Enter the Tour Name", Toast.LENGTH_LONG)

@@ -10,6 +10,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import java.lang.Exception
 
+
+// The activity used to handle user log-in and user page after log-in
 class LoginActivity: Activity() {
     private lateinit var toolBar:Toolbar
     private lateinit var loginBut:Button
@@ -27,6 +29,10 @@ class LoginActivity: Activity() {
     private lateinit var addTour: Button
     private lateinit var signOut: Button
 
+
+    // Check if login
+    // if login, set the user page layout
+    // if not, set the login layout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -136,6 +142,7 @@ class LoginActivity: Activity() {
         }
     }
 
+    // success registration would automatically log in
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

@@ -8,6 +8,8 @@ import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 
+
+// The activity to handle user registration
 class RegisterActivity:Activity(){
     lateinit var registerBut: Button
     lateinit var clearBut: Button

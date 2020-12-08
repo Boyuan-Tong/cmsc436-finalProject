@@ -16,6 +16,7 @@ import com.google.firebase.database.ValueEventListener
 import java.lang.Exception
 
 
+// The activity to show Discovery Page
 class MainActivity : Activity() {
     lateinit var toolBar: Toolbar
     lateinit var recycleView: RecyclerView

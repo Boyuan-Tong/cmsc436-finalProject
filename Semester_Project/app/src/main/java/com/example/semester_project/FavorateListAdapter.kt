@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.*
 import kotlin.collections.ArrayList
 
+
+// The Adapter used to show the Favorate list shown in user page
 class FavorateListAdapter(private val mContext: Context) : BaseAdapter() {
 
     private val mTour = ArrayList<Tour>()

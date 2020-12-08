@@ -13,6 +13,8 @@ import com.google.firebase.storage.ktx.component1
 import com.google.firebase.storage.ktx.component2
 import java.io.File
 
+
+// The activity to show the detail of a location
 class LocationDetailActivity: Activity() {
     private lateinit var nameView: TextView
     private lateinit var addressView: TextView

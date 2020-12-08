@@ -9,6 +9,8 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
+
+// The adapter used to handle the image shown in location detail page
 class LocationImageAdapter(val context: Context) : RecyclerView.Adapter<LocationImageAdapter.ViewHolder>() {
 
     private val myImages = ArrayList<Uri>()

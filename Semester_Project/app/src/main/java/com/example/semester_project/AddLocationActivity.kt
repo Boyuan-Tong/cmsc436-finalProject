@@ -12,6 +12,8 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import kotlin.collections.ArrayList
 
+// add Location towards a new tour
+// Support later edition for the location
 class AddLocationActivity: Activity() {
 
     private lateinit var mAddImage1: Button
@@ -63,6 +65,7 @@ class AddLocationActivity: Activity() {
         }
     }
 
+    // handle the case when author want to edit the location added beforehand
     private fun setUI() {
         nameView.setText(intent.getStringExtra(NAME))
         addressView.setText(intent.getStringExtra(LOCATION_ADDRESS))
@@ -79,6 +82,7 @@ class AddLocationActivity: Activity() {
             }
     }
 
+    // submit the location
     private fun submit() {
         val name = nameView.text.toString()
         val address = addressView.text.toString()
@@ -119,6 +123,7 @@ class AddLocationActivity: Activity() {
         )
         startActivityForResult(tmpIntent, requestCode)
     }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 

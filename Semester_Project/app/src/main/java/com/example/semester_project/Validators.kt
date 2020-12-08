@@ -1,5 +1,8 @@
 package com.example.semester_project
 
+
+// The validator used to check the validation of emails in login and registration, and the
+// validation of password in registration
 class Validators {
     fun validEmail(email: String?) : Boolean {
         if (email.isNullOrEmpty()) {

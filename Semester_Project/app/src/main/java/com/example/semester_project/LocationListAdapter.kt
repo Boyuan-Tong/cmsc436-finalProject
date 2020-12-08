@@ -10,6 +10,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import java.util.ArrayList
 
+//Adapter used to handle location list shown in tour detail page and edit page
 class LocationListAdapter(private val mContext: Context, tourId: String) : BaseAdapter() {
 
     private val mTour = ArrayList<Location>()

@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
+
+// The adapter used to Show the tours in Discovery page
 class CardAdapter(val context: Context) : RecyclerView.Adapter<CardAdapter.ViewHolder>() {
     private val mTours = ArrayList<Tour>()
     private val tourId = ArrayList<String>()
